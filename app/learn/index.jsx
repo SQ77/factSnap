@@ -1,10 +1,10 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 
-export default function Community() {
+export default function Learn() {
     return (
         <View style={styles.container}>
-            <Text>Community</Text>
+            <Text>Learn</Text>
             <StatusBar style="auto" />
         </View>
     );
