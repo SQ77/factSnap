@@ -10,7 +10,7 @@ const theme = {
     colors: {
         ...DefaultTheme.colors,
         primary: "#2695a6",
-        secondary: "#ffffff",
+        secondary: "#4b566e",
         background: "#ffffff",
         surface: "#ffffff",
         onPrimary: "#ffffff",
@@ -73,6 +73,9 @@ export default function RootLayout() {
                     style={styles.navbar}
                     activeColor="#000000"
                     inactiveColor="#999999"
+                    activeIndicatorStyle={{
+                        backgroundColor: "transparent",
+                    }}
                 />
             </View>
         </PaperProvider>
