@@ -1,11 +1,11 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 import QuickActionsCard from "../components/QuickActionsCard";
 import Highlights from "../components/Highlights";
 
 export default function Home() {
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>Hello, Sam</Text>
                 <Text style={styles.subtitle}>
@@ -19,13 +19,12 @@ export default function Home() {
                 <Highlights />
             </View>
             <StatusBar style="auto" />
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         backgroundColor: "#fff",
         paddingHorizontal: 20,
         paddingTop: 80,
