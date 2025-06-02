@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import QuickActionsCard from "../components/QuickActionsCard";
+import Highlights from "../components/Highlights";
 
 export default function Home() {
     return (
@@ -13,6 +14,9 @@ export default function Home() {
             </View>
             <View style={styles.cardContainer}>
                 <QuickActionsCard />
+            </View>
+            <View style={styles.highlightsContainer}>
+                <Highlights />
             </View>
             <StatusBar style="auto" />
         </View>
@@ -42,5 +46,9 @@ const styles = StyleSheet.create({
     },
     cardContainer: {
         alignItems: "center",
+        marginBottom: 20,
+    },
+    highlightsContainer: {
+        marginTop: 10,
     },
 });
