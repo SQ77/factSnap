@@ -2,6 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, ScrollView } from "react-native";
 import QuickActionsCard from "../components/QuickActionsCard";
 import Highlights from "../components/Highlights";
+import RecentScans from "../components/RecentScans";
 
 export default function Home() {
     return (
@@ -17,6 +18,9 @@ export default function Home() {
             </View>
             <View style={styles.highlightsContainer}>
                 <Highlights />
+            </View>
+            <View>
+                <RecentScans />
             </View>
             <StatusBar style="auto" />
         </ScrollView>
