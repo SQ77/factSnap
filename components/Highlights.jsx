@@ -1,5 +1,6 @@
 import { Card, Text, Button, IconButton } from "react-native-paper";
 import { View, StyleSheet, ScrollView, Image } from "react-native";
+import { useRouter } from "expo-router";
 
 const sampleData = [
     {
@@ -23,6 +24,8 @@ const sampleData = [
 ];
 
 export default function Highlights() {
+    const router = useRouter();
+
     return (
         <View>
             <View style={styles.headerRow}>
@@ -30,7 +33,7 @@ export default function Highlights() {
                 <Button
                     mode="text"
                     compact
-                    onPress={() => console.log("View more pressed")}
+                    onPress={() => router.push("/community")}
                 >
                     View More &gt;
                 </Button>
