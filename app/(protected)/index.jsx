@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, ScrollView } from "react-native";
 import QuickActionsCard from "../../components/QuickActionsCard";
@@ -5,15 +6,35 @@ import Highlights from "../../components/Highlights";
 import RecentScans from "../../components/RecentScans";
 import WaveBackgroundTop from "../../components/WaveBackgroundTop";
 import WaveBackgroundBottom from "../../components/WaveBackgroundBottom";
+import { supabase } from "../../lib/supabase";
 
 export default function Home() {
+    const [username, setUsername] = useState("");
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+            const email = session?.user?.email;
+            if (email) {
+                const name = email.split("@")[0];
+                setUsername(name);
+            }
+        };
+
+        fetchUser();
+    }, []);
+
     return (
         <ScrollView>
             <WaveBackgroundTop />
 
             <View style={styles.content}>
                 <View style={styles.header}>
-                    <Text style={styles.title}>Hello, Sam</Text>
+                    <Text style={styles.title}>
+                        Hello, {username || "there"}
+                    </Text>
                     <Text style={styles.subtitle}>
                         What would you like to check today?
                     </Text>
