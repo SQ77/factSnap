@@ -1,10 +1,10 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, ScrollView } from "react-native";
-import QuickActionsCard from "../components/QuickActionsCard";
-import Highlights from "../components/Highlights";
-import RecentScans from "../components/RecentScans";
-import WaveBackgroundTop from "../components/WaveBackgroundTop";
-import WaveBackgroundBottom from "../components/WaveBackgroundBottom";
+import QuickActionsCard from "../../components/QuickActionsCard";
+import Highlights from "../../components/Highlights";
+import RecentScans from "../../components/RecentScans";
+import WaveBackgroundTop from "../../components/WaveBackgroundTop";
+import WaveBackgroundBottom from "../../components/WaveBackgroundBottom";
 
 export default function Home() {
     return (
