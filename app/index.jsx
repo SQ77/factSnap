@@ -1,30 +1,49 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 import QuickActionsCard from "../components/QuickActionsCard";
+import Highlights from "../components/Highlights";
+import RecentScans from "../components/RecentScans";
+import WaveBackgroundTop from "../components/WaveBackgroundTop";
+import WaveBackgroundBottom from "../components/WaveBackgroundBottom";
 
 export default function Home() {
     return (
-        <View style={styles.container}>
-            <View style={styles.header}>
-                <Text style={styles.title}>Hello, Sam</Text>
-                <Text style={styles.subtitle}>
-                    What would you like to check today?
-                </Text>
+        <ScrollView>
+            <WaveBackgroundTop />
+
+            <View style={styles.content}>
+                <View style={styles.header}>
+                    <Text style={styles.title}>Hello, Sam</Text>
+                    <Text style={styles.subtitle}>
+                        What would you like to check today?
+                    </Text>
+                </View>
+
+                <View style={styles.cardContainer}>
+                    <QuickActionsCard />
+                </View>
+
+                <View style={styles.highlightsContainer}>
+                    <Highlights />
+                </View>
+
+                <View>
+                    <RecentScans />
+                </View>
             </View>
-            <View style={styles.cardContainer}>
-                <QuickActionsCard />
-            </View>
+
+            <WaveBackgroundBottom />
+
             <StatusBar style="auto" />
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#fff",
+    content: {
+        paddingTop: 60,
         paddingHorizontal: 20,
-        paddingTop: 80,
+        paddingBottom: 32,
     },
     header: {
         alignItems: "flex-start",
@@ -34,13 +53,19 @@ const styles = StyleSheet.create({
         fontSize: 28,
         fontWeight: "600",
         marginBottom: 8,
+        color: "white",
     },
     subtitle: {
         fontSize: 16,
         color: "#555",
         marginBottom: 10,
+        color: "white",
     },
     cardContainer: {
         alignItems: "center",
+        marginBottom: 20,
+    },
+    highlightsContainer: {
+        marginTop: 10,
     },
 });
