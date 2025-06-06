@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, ScrollView } from "react-native";
+import { supabase } from "../../lib/supabase";
 import QuickActionsCard from "../../components/QuickActionsCard";
 import Highlights from "../../components/Highlights";
 import RecentScans from "../../components/RecentScans";
 import WaveBackgroundTop from "../../components/WaveBackgroundTop";
 import WaveBackgroundBottom from "../../components/WaveBackgroundBottom";
-import { supabase } from "../../lib/supabase";
+import MenuHomepage from "../../components/MenuHomepage";
 
 export default function Home() {
     const [username, setUsername] = useState("");
@@ -31,6 +32,9 @@ export default function Home() {
             <WaveBackgroundTop />
 
             <View style={styles.content}>
+                <View style={styles.menuHomepage}>
+                    <MenuHomepage />
+                </View>
                 <View style={styles.header}>
                     <Text style={styles.title}>
                         Hello, {username || "there"}
@@ -62,9 +66,12 @@ export default function Home() {
 
 const styles = StyleSheet.create({
     content: {
-        paddingTop: 60,
+        paddingTop: 30,
         paddingHorizontal: 20,
         paddingBottom: 32,
+    },
+    menuHomepage: {
+        zIndex: 99,
     },
     header: {
         alignItems: "flex-start",
