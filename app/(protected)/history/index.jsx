@@ -8,6 +8,7 @@ import {
     SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import WaveBackgroundTop from "../../../components/WaveBackgroundTop";
 import WaveBackgroundBottom from "../../../components/WaveBackgroundBottom";
 
@@ -49,6 +50,8 @@ const TABS = ["All", "Scans", "Screenshots", "Uploads"];
 export default function HistoryScreen() {
     const [selectedTab, setSelectedTab] = useState("All");
 
+    const router = useRouter();
+
     const filteredData =
         selectedTab === "All"
             ? mockData
@@ -65,7 +68,7 @@ export default function HistoryScreen() {
                         ? "cloud-upload-outline"
                         : "image-outline"
                 }
-                size={20}
+                size={26}
                 color="#fff"
             />
             <View style={{ flex: 1 }}>
@@ -117,7 +120,10 @@ export default function HistoryScreen() {
                 contentContainerStyle={{ paddingBottom: 130 }}
             />
 
-            <TouchableOpacity style={styles.scanButton}>
+            <TouchableOpacity
+                style={styles.scanButton}
+                onPress={() => router.push("/scan")}
+            >
                 <Ionicons name="scan" size={30} color="#fff" />
             </TouchableOpacity>
 
