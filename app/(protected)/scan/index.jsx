@@ -1,23 +1,23 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { useState, useRef } from "react";
 import {
-    Button,
     StyleSheet,
-    Text,
     TouchableOpacity,
     View,
     Alert,
     Dimensions,
 } from "react-native";
+import { Button, Text, ActivityIndicator } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import * as ImagePicker from "expo-image-picker";
 
 const { width, height } = Dimensions.get("window");
 
 export default function ScanScreen() {
     const [permission, requestPermission] = useCameraPermissions();
     const [flashMode, setFlashMode] = useState("off");
-    const [showShareDialog, setShowShareDialog] = useState(false);
+    const [showLoading, setShowLoading] = useState(false);
     const cameraRef = useRef(null);
     const router = useRouter();
 
@@ -44,17 +44,49 @@ export default function ScanScreen() {
         if (cameraRef.current) {
             try {
                 const photo = await cameraRef.current.takePictureAsync();
-                // Simulate document sharing
-                setShowShareDialog(true);
+                // Simulate uploading of photo to backend
+                setShowLoading(true);
+                setTimeout(() => {
+                    setShowLoading(false);
+                }, 4000);
             } catch (error) {
                 Alert.alert("Error", "Failed to take picture");
             }
         }
     }
 
-    function handleShare() {
-        setShowShareDialog(false);
-        Alert.alert("Success", "Document shared successfully!");
+    async function pickImage() {
+        try {
+            // Request media library permissions
+            const { status } =
+                await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+            if (status !== "granted") {
+                Alert.alert(
+                    "Permission Required",
+                    "FactSnap needs camera roll permissions to select images."
+                );
+                return;
+            }
+
+            // Launch image picker
+            const result = await ImagePicker.launchImageLibraryAsync({
+                allowsEditing: true,
+                aspect: [4, 3],
+                quality: 1,
+            });
+
+            if (!result.canceled && result.assets[0]) {
+                // Simulate uploading of selected image to backend
+                setShowLoading(true);
+                setTimeout(() => {
+                    setShowLoading(false);
+                    Alert.alert("Success", "Image uploaded successfully!");
+                }, 3000);
+            }
+        } catch (error) {
+            Alert.alert("Error", "Failed to pick image from gallery");
+        }
     }
 
     return (
@@ -103,7 +135,10 @@ export default function ScanScreen() {
 
                 {/* Bottom controls */}
                 <View style={styles.bottomControls}>
-                    <TouchableOpacity style={styles.galleryButton}>
+                    <TouchableOpacity
+                        style={styles.galleryButton}
+                        onPress={pickImage}
+                    >
                         <Ionicons name="images" size={24} color="white" />
                     </TouchableOpacity>
 
@@ -127,48 +162,10 @@ export default function ScanScreen() {
                 </View>
             </CameraView>
 
-            {/* Share Dialog Overlay */}
-            {showShareDialog && (
-                <View style={styles.overlay}>
-                    <View style={styles.shareDialog}>
-                        <View style={styles.shareHeader}>
-                            <Text style={styles.shareTitle}>
-                                Christopher Wright shared a document
-                            </Text>
-                        </View>
-
-                        <View style={styles.shareContent}>
-                            <View style={styles.shareInfo}>
-                                <View style={styles.avatar}>
-                                    <Text style={styles.avatarText}>CW</Text>
-                                </View>
-                                <View style={styles.shareDetails}>
-                                    <Text style={styles.shareText}>
-                                        Christopher Wright
-                                        (christopherwright@work.ca) has invited
-                                        you to add to a shared document.
-                                    </Text>
-                                    <Text style={styles.shareSubtext}>
-                                        Shared 2 minutes ago
-                                    </Text>
-                                </View>
-                            </View>
-
-                            <Text style={styles.documentTitle}>
-                                📄 Pro-active Security Report.docx
-                            </Text>
-                            <Text style={styles.documentSubtitle}>
-                                Document shared via Work email app
-                            </Text>
-                        </View>
-
-                        <TouchableOpacity
-                            style={styles.shareButton}
-                            onPress={handleShare}
-                        >
-                            <Text style={styles.shareButtonText}>Share</Text>
-                        </TouchableOpacity>
-                    </View>
+            {/* Loading Spinner */}
+            {showLoading && (
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" />
                 </View>
             )}
         </View>
@@ -284,90 +281,11 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
-    overlay: {
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0,0,0,0.7)",
+    loadingOverlay: {
+        ...StyleSheet.absoluteFillObject,
         justifyContent: "center",
         alignItems: "center",
-    },
-    shareDialog: {
-        backgroundColor: "white",
-        borderRadius: 15,
-        margin: 20,
-        padding: 20,
-        maxWidth: 350,
-        width: "90%",
-    },
-    shareHeader: {
-        borderBottomWidth: 1,
-        borderBottomColor: "#e0e0e0",
-        paddingBottom: 15,
-        marginBottom: 15,
-    },
-    shareTitle: {
-        fontSize: 18,
-        fontWeight: "600",
-        color: "#333",
-    },
-    shareContent: {
-        marginBottom: 20,
-    },
-    shareInfo: {
-        flexDirection: "row",
-        alignItems: "flex-start",
-        marginBottom: 15,
-    },
-    avatar: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: "#4CAF50",
-        justifyContent: "center",
-        alignItems: "center",
-        marginRight: 12,
-    },
-    avatarText: {
-        color: "white",
-        fontWeight: "bold",
-        fontSize: 16,
-    },
-    shareDetails: {
-        flex: 1,
-    },
-    shareText: {
-        fontSize: 14,
-        color: "#333",
-        lineHeight: 20,
-        marginBottom: 4,
-    },
-    shareSubtext: {
-        fontSize: 12,
-        color: "#666",
-    },
-    documentTitle: {
-        fontSize: 16,
-        fontWeight: "500",
-        color: "#333",
-        marginBottom: 4,
-    },
-    documentSubtitle: {
-        fontSize: 12,
-        color: "#666",
-    },
-    shareButton: {
-        backgroundColor: "#2196F3",
-        borderRadius: 8,
-        paddingVertical: 12,
-        paddingHorizontal: 24,
-        alignItems: "center",
-    },
-    shareButtonText: {
-        color: "white",
-        fontSize: 16,
-        fontWeight: "600",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        zIndex: 99,
     },
 });
