@@ -13,6 +13,7 @@ import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { supabase } from "../../../lib/supabase";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const { width, height } = Dimensions.get("window");
 
@@ -28,12 +29,35 @@ export default function ScanScreen() {
     }
 
     if (!permission.granted) {
+        if (!permission.canAskAgain) {
+            return (
+                <View style={styles.permissionContainer}>
+                    <MaterialIcons
+                        name="no-photography"
+                        size={48}
+                        color="#888"
+                    />
+                    <Text style={styles.permissionMessage}>
+                        Camera access was permanently disabled. Please enable it
+                        in Settings.
+                    </Text>
+                </View>
+            );
+        }
+
         return (
-            <View style={styles.container}>
-                <Text style={styles.message}>
-                    We need your permission to show the camera
+            <View style={styles.permissionContainer}>
+                <MaterialIcons name="camera-alt" size={48} color="#888" />
+                <Text style={styles.permissionMessage}>
+                    FactSnap needs access to your camera to continue
                 </Text>
-                <Button onPress={requestPermission} title="grant permission" />
+                <Button
+                    mode="contained"
+                    onPress={requestPermission}
+                    style={styles.permissionButton}
+                >
+                    Grant Permission
+                </Button>
             </View>
         );
     }
@@ -229,14 +253,25 @@ export default function ScanScreen() {
 }
 
 const styles = StyleSheet.create({
+    permissionContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 20,
+        backgroundColor: "#fff",
+    },
+    permissionMessage: {
+        fontSize: 16,
+        textAlign: "center",
+        marginVertical: 16,
+        color: "#555",
+    },
+    permissionButton: {
+        marginTop: 10,
+    },
     container: {
         flex: 1,
         backgroundColor: "black",
-    },
-    message: {
-        textAlign: "center",
-        paddingBottom: 10,
-        color: "white",
     },
     camera: {
         flex: 1,
