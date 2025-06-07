@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, ScrollView } from "react-native";
 import { supabase } from "../../lib/supabase";
 import QuickActionsCard from "../../components/QuickActionsCard";
@@ -58,8 +57,6 @@ export default function Home() {
             </View>
 
             <WaveBackgroundBottom />
-
-            <StatusBar style="auto" />
         </ScrollView>
     );
 }

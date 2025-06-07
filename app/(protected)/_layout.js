@@ -5,6 +5,7 @@ import { PaperProvider } from "react-native-paper";
 import { MD3LightTheme as DefaultTheme } from "react-native-paper";
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
+import CustomStatusBar from "../../components/CustomStatusBar";
 
 const theme = {
     ...DefaultTheme,
@@ -77,6 +78,7 @@ export default function RootLayout() {
 
     return (
         <PaperProvider theme={theme}>
+            <CustomStatusBar backgroundColor={theme.colors.primary} />
             <View style={styles.container}>
                 <View style={styles.content}>
                     <Stack screenOptions={{ headerShown: false }} />
