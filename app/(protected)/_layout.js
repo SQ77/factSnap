@@ -3,7 +3,9 @@ import { BottomNavigation } from "react-native-paper";
 import { View, StyleSheet } from "react-native";
 import { PaperProvider } from "react-native-paper";
 import { MD3LightTheme as DefaultTheme } from "react-native-paper";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "../../lib/supabase";
+import CustomStatusBar from "../../components/CustomStatusBar";
 
 const theme = {
     ...DefaultTheme,
@@ -20,22 +22,40 @@ const theme = {
 
 export default function RootLayout() {
     const pathname = usePathname();
+    const [index, setIndex] = useState(0);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+            if (!session) {
+                router.replace("/login");
+            } else {
+                setLoading(false);
+            }
+        };
+
+        checkAuth();
+    }, []);
 
     // Sync selected tab with current path
-    const getIndexFromPath = () => {
-        switch (pathname) {
-            case "/history":
-                return 1;
-            case "/community":
-                return 2;
-            case "/learn":
-                return 3;
-            default:
-                return 0;
-        }
-    };
-
-    const [index, setIndex] = useState(getIndexFromPath());
+    useEffect(() => {
+        const getIndexFromPath = () => {
+            switch (pathname) {
+                case "/history":
+                    return 1;
+                case "/community":
+                    return 2;
+                case "/learn":
+                    return 3;
+                default:
+                    return 0;
+            }
+        };
+        setIndex(getIndexFromPath());
+    }, [pathname]);
 
     const routes = [
         { key: "", title: "Home", focusedIcon: "home" },
@@ -54,8 +74,14 @@ export default function RootLayout() {
         router.push(`/${route}`);
     };
 
+    if (loading) return null; // or a splash screen
+
     return (
         <PaperProvider theme={theme}>
+            <CustomStatusBar
+                backgroundColor={theme.colors.primary}
+                barStyle="light"
+            />
             <View style={styles.container}>
                 <View style={styles.content}>
                     <Stack screenOptions={{ headerShown: false }} />
