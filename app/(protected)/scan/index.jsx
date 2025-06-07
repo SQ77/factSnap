@@ -11,6 +11,8 @@ import { Button, Text, ActivityIndicator } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
+import { supabase } from "../../../lib/supabase";
 
 const { width, height } = Dimensions.get("window");
 
@@ -40,17 +42,62 @@ export default function ScanScreen() {
         setFlashMode((current) => (current === "off" ? "on" : "off"));
     }
 
+    async function uploadImageToSupabase(imageUri, fileName) {
+        try {
+            // Read the image file as base64
+            const base64 = await FileSystem.readAsStringAsync(imageUri, {
+                encoding: FileSystem.EncodingType.Base64,
+            });
+
+            // Convert base64 to ArrayBuffer
+            const byteCharacters = atob(base64);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
+
+            // Upload to Supabase storage
+            const { data, error } = await supabase.storage
+                .from("images")
+                .upload(`${user.id}/${fileName}`, byteArray, {
+                    contentType: "image/jpeg",
+                    upsert: false,
+                });
+
+            if (error) {
+                throw error;
+            }
+
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async function takePicture() {
         if (cameraRef.current) {
             try {
-                const photo = await cameraRef.current.takePictureAsync();
-                // Simulate uploading of photo to backend
                 setShowLoading(true);
-                setTimeout(() => {
-                    setShowLoading(false);
-                }, 4000);
+                const photo = await cameraRef.current.takePictureAsync({
+                    quality: 0.8,
+                });
+
+                // Generate unique filename
+                const fileName = `camera_${Date.now()}.jpg`;
+
+                // Upload to Supabase
+                await uploadImageToSupabase(photo.uri, fileName);
+
+                Alert.alert("Success", "Photo uploaded successfully!");
             } catch (error) {
-                Alert.alert("Error", "Failed to take picture");
+                Alert.alert("Error", "Failed to upload photo");
+            } finally {
+                setShowLoading(false);
             }
         }
     }
@@ -77,12 +124,21 @@ export default function ScanScreen() {
             });
 
             if (!result.canceled && result.assets[0]) {
-                // Simulate uploading of selected image to backend
-                setShowLoading(true);
-                setTimeout(() => {
-                    setShowLoading(false);
+                try {
+                    setShowLoading(true);
+
+                    // Generate unique filename
+                    const fileName = `gallery_${Date.now()}.jpg`;
+
+                    // Upload to Supabase
+                    await uploadImageToSupabase(result.assets[0].uri, fileName);
+
                     Alert.alert("Success", "Image uploaded successfully!");
-                }, 3000);
+                } catch (uploadError) {
+                    Alert.alert("Error", "Failed to upload image");
+                } finally {
+                    setShowLoading(false);
+                }
             }
         } catch (error) {
             Alert.alert("Error", "Failed to pick image from gallery");
