@@ -2,7 +2,7 @@ import { View, Platform } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const CustomStatusBar = ({ backgroundColor, barStyle = "dark" }) => {
+const CustomStatusBar = ({ backgroundColor, barStyle }) => {
     const insets = useSafeAreaInsets();
 
     return (

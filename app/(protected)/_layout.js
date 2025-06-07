@@ -78,7 +78,10 @@ export default function RootLayout() {
 
     return (
         <PaperProvider theme={theme}>
-            <CustomStatusBar backgroundColor={theme.colors.primary} />
+            <CustomStatusBar
+                backgroundColor={theme.colors.primary}
+                barStyle="light"
+            />
             <View style={styles.container}>
                 <View style={styles.content}>
                     <Stack screenOptions={{ headerShown: false }} />
