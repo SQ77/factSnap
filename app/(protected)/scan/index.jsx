@@ -11,9 +11,10 @@ import { Button, Text, ActivityIndicator } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
-import { supabase } from "../../../lib/supabase";
 import { MaterialIcons } from "@expo/vector-icons";
+import { ImageService } from "../../../services/imageService";
+import { OCRService } from "../../../services/ocrService";
+import { DatabaseService } from "../../../services/databaseService";
 
 const { width, height } = Dimensions.get("window");
 
@@ -21,6 +22,7 @@ export default function ScanScreen() {
     const [permission, requestPermission] = useCameraPermissions();
     const [flashMode, setFlashMode] = useState("off");
     const [showLoading, setShowLoading] = useState(false);
+    const [loadingText, setLoadingText] = useState("Processing...");
     const cameraRef = useRef(null);
     const router = useRouter();
 
@@ -66,47 +68,37 @@ export default function ScanScreen() {
         setFlashMode((current) => (current === "off" ? "on" : "off"));
     }
 
-    async function uploadImageToSupabase(imageUri, fileName) {
+    async function processImage(imageUri, fileName) {
         try {
-            // Read the image file as base64
-            const base64 = await FileSystem.readAsStringAsync(imageUri, {
-                encoding: FileSystem.EncodingType.Base64,
-            });
+            setShowLoading(true);
+            setLoadingText("Uploading image...");
 
-            // Convert base64 to ArrayBuffer
-            const byteCharacters = atob(base64);
-            const byteNumbers = new Array(byteCharacters.length);
-            for (let i = 0; i < byteCharacters.length; i++) {
-                byteNumbers[i] = byteCharacters.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
+            // Upload image to Supabase
+            await ImageService.uploadImage(imageUri, fileName);
 
-            const {
-                data: { user },
-            } = await supabase.auth.getUser();
+            setLoadingText("Extracting text...");
 
-            // Upload to Supabase storage
-            const { data, error } = await supabase.storage
-                .from("images")
-                .upload(`${user.id}/${fileName}`, byteArray, {
-                    contentType: "image/jpeg",
-                    upsert: false,
-                });
+            // Perform OCR
+            const extractedText = await OCRService.extractText(imageUri);
 
-            if (error) {
-                throw error;
-            }
+            setLoadingText("Saving to database...");
 
-            return data;
+            // Save to database
+            await DatabaseService.saveImageData(fileName, extractedText);
+
+            Alert.alert("Success", "Image processed and saved successfully!");
         } catch (error) {
-            throw error;
+            console.error("Error processing image:", error);
+            Alert.alert("Error", "Failed to process image: " + error.message);
+        } finally {
+            setShowLoading(false);
+            setLoadingText("Processing...");
         }
     }
 
     async function takePicture() {
         if (cameraRef.current) {
             try {
-                setShowLoading(true);
                 const photo = await cameraRef.current.takePictureAsync({
                     quality: 0.8,
                 });
@@ -114,14 +106,10 @@ export default function ScanScreen() {
                 // Generate unique filename
                 const fileName = `camera_${Date.now()}.jpg`;
 
-                // Upload to Supabase
-                await uploadImageToSupabase(photo.uri, fileName);
-
-                Alert.alert("Success", "Photo uploaded successfully!");
+                await processImage(photo.uri, fileName);
             } catch (error) {
-                Alert.alert("Error", "Failed to upload photo");
-            } finally {
-                setShowLoading(false);
+                console.error("Error taking picture:", error);
+                Alert.alert("Error", "Failed to take picture");
             }
         }
     }
@@ -148,23 +136,13 @@ export default function ScanScreen() {
             });
 
             if (!result.canceled && result.assets[0]) {
-                try {
-                    setShowLoading(true);
+                // Generate unique filename
+                const fileName = `gallery_${Date.now()}.jpg`;
 
-                    // Generate unique filename
-                    const fileName = `gallery_${Date.now()}.jpg`;
-
-                    // Upload to Supabase
-                    await uploadImageToSupabase(result.assets[0].uri, fileName);
-
-                    Alert.alert("Success", "Image uploaded successfully!");
-                } catch (uploadError) {
-                    Alert.alert("Error", "Failed to upload image");
-                } finally {
-                    setShowLoading(false);
-                }
+                await processImage(result.assets[0].uri, fileName);
             }
         } catch (error) {
+            console.error("Error picking image:", error);
             Alert.alert("Error", "Failed to pick image from gallery");
         }
     }
@@ -218,13 +196,18 @@ export default function ScanScreen() {
                     <TouchableOpacity
                         style={styles.galleryButton}
                         onPress={pickImage}
+                        disabled={showLoading}
                     >
                         <Ionicons name="images" size={24} color="white" />
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={styles.captureButton}
+                        style={[
+                            styles.captureButton,
+                            showLoading && styles.disabledButton,
+                        ]}
                         onPress={takePicture}
+                        disabled={showLoading}
                     >
                         <Ionicons name="scan" size={28} color="white" />
                     </TouchableOpacity>
@@ -232,6 +215,7 @@ export default function ScanScreen() {
                     <TouchableOpacity
                         style={styles.docButton}
                         onPress={() => router.push("/history")}
+                        disabled={showLoading}
                     >
                         <Ionicons
                             name="document-text"
@@ -245,7 +229,8 @@ export default function ScanScreen() {
             {/* Loading Spinner */}
             {showLoading && (
                 <View style={styles.loadingOverlay}>
-                    <ActivityIndicator size="large" />
+                    <ActivityIndicator size="large" color="#2695a6" />
+                    <Text style={styles.loadingText}>{loadingText}</Text>
                 </View>
             )}
         </View>
@@ -364,6 +349,9 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
+    disabledButton: {
+        opacity: 0.5,
+    },
     docButton: {
         width: 50,
         height: 50,
@@ -376,7 +364,12 @@ const styles = StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        backgroundColor: "rgba(0, 0, 0, 0.7)",
         zIndex: 99,
+    },
+    loadingText: {
+        color: "white",
+        marginTop: 10,
+        fontSize: 16,
     },
 });
