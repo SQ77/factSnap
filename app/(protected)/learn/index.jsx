@@ -13,9 +13,9 @@ import WaveBackgroundBottom from "../../../components/WaveBackgroundBottom";
 
 const categories = [
     { title: "Red Flag Spotting", emoji: "🚩", route: "/learn/red-flags" },
-    { title: "Decision Simulators", emoji: "🧠", route: "/learn/decision-sim" },
-    { title: "Fake News & Misinformation", emoji: "📰", route: "/learn/fake-news" },
-    { title: "Scams in Singapore", emoji: "🇸🇬", route: "/learn/scams-sg" },
+    { title: "Decision Simulators", emoji: "🧠", route: "/learn/decision" },
+    { title: "Fake News & Misinformation", emoji: "📰", route: "/learn/fake_news" },
+    { title: "Scams in Singapore", emoji: "🇸🇬", route: "/learn/scams" },
 ];
 
 export default function Learn() {
