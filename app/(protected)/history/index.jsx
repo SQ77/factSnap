@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
     View,
     Text,
@@ -8,9 +8,11 @@ import {
     SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { supabase } from "../../../lib/supabase";
 import WaveBackgroundTop from "../../../components/WaveBackgroundTop";
 import WaveBackgroundBottom from "../../../components/WaveBackgroundBottom";
+import ResultsModal from "../../../components/ResultsModal";
 
 const mockData = [
     {
@@ -48,9 +50,85 @@ const mockData = [
 const TABS = ["All", "Scans", "Screenshots", "Uploads"];
 
 export default function HistoryScreen() {
+    const { showModal, filename } = useLocalSearchParams();
+    const [modalVisible, setModalVisible] = useState(false);
+    const [results, setResults] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [pendingImageId, setPendingImageId] = useState(null);
     const [selectedTab, setSelectedTab] = useState("All");
 
     const router = useRouter();
+
+    // Handle URL parameters on screen load
+    useEffect(() => {
+        if (showModal === "true" && filename) {
+            console.log("Opening modal for image:", filename);
+            setPendingImageId(filename);
+            setModalVisible(true);
+            setLoading(true);
+
+            // Optional: Clear URL parameters after reading them
+            // This prevents the modal from reopening if user navigates back
+            setTimeout(() => {
+                router.replace("/history");
+            }, 100);
+        }
+    }, [showModal, filename]);
+
+    // Supabase realtime subscription
+    useEffect(() => {
+        const subscription = supabase
+            .channel("user_images_results")
+            .on(
+                "postgres_changes",
+                {
+                    event: "*", // Listen to INSERT and UPDATE
+                    schema: "public",
+                    table: "user_images",
+                    filter: "status=eq.done", // Only when processing is complete
+                },
+                (payload) => {
+                    console.log("Realtime update received:", payload);
+
+                    // Check if this update is for the image we're waiting for
+                    if (pendingImageId && payload.new.id === pendingImageId) {
+                        console.log(
+                            "Processing completed for pending image:",
+                            payload.new
+                        );
+                        setResults(payload.new);
+                        setLoading(false);
+                    } else if (
+                        pendingImageId &&
+                        payload.new.filename === pendingImageId
+                    ) {
+                        // Fallback: also check by filename in case ID was passed as filename
+                        console.log(
+                            "Processing completed for pending image (by filename):",
+                            payload.new
+                        );
+                        setResults(payload.new);
+                        setLoading(false);
+                    }
+                }
+            )
+            .subscribe((status) => {
+                console.log("Realtime subscription status:", status);
+            });
+
+        return () => {
+            console.log("Unsubscribing from realtime");
+            subscription.unsubscribe();
+        };
+    }, [pendingImageId]);
+
+    // Handle modal dismiss
+    const handleModalDismiss = useCallback(() => {
+        setModalVisible(false);
+        setResults(null);
+        setLoading(false);
+        setPendingImageId(null);
+    }, []);
 
     const filteredData =
         selectedTab === "All"
@@ -128,6 +206,14 @@ export default function HistoryScreen() {
             </TouchableOpacity>
 
             <WaveBackgroundBottom />
+
+            <ResultsModal
+                visible={modalVisible}
+                onDismiss={handleModalDismiss}
+                results={results}
+                loading={loading}
+                title="Processing Results"
+            />
         </SafeAreaView>
     );
 }

@@ -73,7 +73,7 @@ export default function ScanScreen() {
             setShowLoading(true);
             setLoadingText("Uploading image...");
 
-            // Upload image to Supabase
+            // Upload image to Supabase storage
             await ImageService.uploadImage(imageUri, fileName);
 
             setLoadingText("Extracting text...");
@@ -84,9 +84,18 @@ export default function ScanScreen() {
             setLoadingText("Saving to database...");
 
             // Save to database
-            await DatabaseService.saveImageData(fileName, extractedText);
+            const data = await DatabaseService.saveImageData(
+                fileName,
+                extractedText
+            );
 
-            Alert.alert("Success", "Image processed and saved successfully!");
+            router.push({
+                pathname: "/history",
+                params: {
+                    showModal: "true",
+                    filename: data.filename,
+                },
+            });
         } catch (error) {
             console.error("Error processing image:", error);
             Alert.alert("Error", "Failed to process image: " + error.message);
