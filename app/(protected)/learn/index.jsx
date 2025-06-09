@@ -23,8 +23,7 @@ export default function Learn() {
     const router = useRouter();
 
     return (
-        <SafeAreaView style={styles.root}>
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <SafeAreaView>
                 <WaveBackgroundTop />
 
                 {/* Main block with curved bottom */}
@@ -35,8 +34,9 @@ export default function Learn() {
                             <Text style={styles.levelText}>Current Level: {level}</Text>
                         </View>
                     </View>
-
-                    <Text style={styles.sectionTitle}>Categories</Text>
+                    <View style = {{alignItems:'center'}}>
+                        <Text style={styles.sectionTitle}>Categories</Text>
+                    </View>
 
                     <View style={styles.grid}>
                         {categories.map((cat, index) => (
@@ -59,21 +59,14 @@ export default function Learn() {
                     </View>
                 </View>
 
-                <WaveBackgroundBottom />
-            </ScrollView>
+                <WaveBackgroundBottom style = {{bottom:125}}/>
         </SafeAreaView>
     );
 }
 const styles = StyleSheet.create({
-    root: {
-        flex: 1,
-        backgroundColor: "#F5F6FA",
-    },
-    scrollContainer: {
-        paddingBottom: 40,
-    },
+    
+    
     topContainer: {
-        backgroundColor: "#2695A6",
         borderBottomLeftRadius: 40,
         borderBottomRightRadius: 40,
         paddingHorizontal: 20,
@@ -103,7 +96,7 @@ const styles = StyleSheet.create({
         color: "#007C91",
     },
     sectionTitle: {
-        fontSize: 18,
+        fontSize: 26,
         fontWeight: "600",
         color: "white",
         marginBottom: 20,
