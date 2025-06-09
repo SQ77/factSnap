@@ -2,6 +2,8 @@ import { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "expo-router";
+import WaveBackgroundTop from "../components/WaveBackgroundTop";
+import WaveBackgroundBottom from "../components/WaveBackgroundBottom";
 
 export default function SignInScreen() {
     const [email, setEmail] = useState("");
@@ -26,6 +28,7 @@ export default function SignInScreen() {
 
     return (
         <View style={styles.container}>
+            <WaveBackgroundTop></WaveBackgroundTop>
             <Text style={styles.header}>Login</Text>
 
             <TextInput
@@ -55,6 +58,7 @@ export default function SignInScreen() {
             >
                 Don't have an account? Sign up
             </Text>
+            <WaveBackgroundBottom></WaveBackgroundBottom>
         </View>
     );
 }
