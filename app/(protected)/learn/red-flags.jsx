@@ -16,8 +16,7 @@ export default function RedFlagsScreen() {
     const router = useRouter();
 
     return (
-        <SafeAreaView style={styles.root}>
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <ScrollView>
                 <WaveBackgroundTop />
 
                 <View style={styles.container}>
@@ -90,21 +89,13 @@ export default function RedFlagsScreen() {
 
                 <WaveBackgroundBottom />
             </ScrollView>
-        </SafeAreaView>
     );
 }
 
 
 const styles = StyleSheet.create({
-    root: {
-        flex: 1,
-        backgroundColor: "#F5F6FA",
-    },
-    scrollContainer: {
-        paddingBottom: 60,
-    },
+   
     container: {
-        backgroundColor: "#2695A6",
         borderBottomLeftRadius: 40,
         borderBottomRightRadius: 40,
         paddingHorizontal: 20,
@@ -133,6 +124,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 16,
         marginBottom: 20,
+        alignItems :'center',
     },
     title: {
         fontSize: 18,
@@ -142,6 +134,7 @@ const styles = StyleSheet.create({
     subtitle: {
         fontSize: 13,
         color: "#444",
+        alignItems : 'center',
     },
     footerRow: {
         flexDirection: "row",

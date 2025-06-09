@@ -8,6 +8,7 @@ import {
     SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
 const top3 = [
     {
@@ -48,12 +49,13 @@ export default function LeaderboardScreen() {
             <Text style={styles.pointsText}>{item.points} pts</Text>
         </View>
     );
+    const router = useRouter();
 
     return (
         <SafeAreaView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={()=>{router.back()}}>
                     <Ionicons name="chevron-back" size={24} color="#333" />
                 </TouchableOpacity>
                 <View style={styles.positionBadge}>
