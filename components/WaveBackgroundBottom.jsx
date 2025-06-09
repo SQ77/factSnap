@@ -1,10 +1,10 @@
 import { View, StyleSheet } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
-const WaveBackgroundBottom = () => {
+const WaveBackgroundBottom = ({...props}) => {
     return (
         <>
-            <View style={styles.waveContainer}>
+            <View style={styles.waveContainer}{...props}>
                 <Svg
                     height="500"
                     width="100%"
