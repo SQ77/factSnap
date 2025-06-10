@@ -10,7 +10,7 @@ export default function QuickActionsCard() {
             <Card.Content>
                 <View style={styles.row}>
                     <View style={styles.action}>
-                        <Link href="/history">
+                        <Link href="/scan">
                             <View
                                 style={[
                                     styles.circle,
