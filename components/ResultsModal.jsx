@@ -42,21 +42,41 @@ const ResultsModal = ({
                 style={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
             >
-                {/* Main Analysis Text */}
-                {results.analysis && (
+                {/* Credibility Score */}
+                {results.credibility !== undefined && (
                     <Card style={styles.resultCard}>
                         <Card.Content>
                             <Text
                                 variant="titleMedium"
                                 style={styles.sectionTitle}
                             >
-                                Analysis
+                                Credibility Score
                             </Text>
                             <Text
                                 variant="bodyMedium"
                                 style={styles.analysisText}
                             >
-                                {results.credibility}
+                                {results.credibility}/100
+                            </Text>
+                        </Card.Content>
+                    </Card>
+                )}
+
+                {/* Extracted Text */}
+                {results.image_text && (
+                    <Card style={styles.resultCard}>
+                        <Card.Content>
+                            <Text
+                                variant="titleMedium"
+                                style={styles.sectionTitle}
+                            >
+                                Extracted Text
+                            </Text>
+                            <Text
+                                variant="bodyMedium"
+                                style={styles.analysisText}
+                            >
+                                {results.image_text}
                             </Text>
                         </Card.Content>
                     </Card>
@@ -70,9 +90,14 @@ const ResultsModal = ({
                                 variant="titleMedium"
                                 style={styles.sectionTitle}
                             >
-                                Details
+                                Analysis Details
                             </Text>
-                            {results.explanation}
+                            <Text
+                                variant="bodyMedium"
+                                style={styles.analysisText}
+                            >
+                                {results.explanation}
+                            </Text>
                         </Card.Content>
                     </Card>
                 )}
@@ -96,48 +121,27 @@ const ResultsModal = ({
                 contentContainerStyle={styles.modalContainer}
             >
                 <Card style={styles.modalCard}>
-                    {/* Header */}
+                    {/* Header - Fixed height */}
                     <Card.Title
                         title={title}
                         titleVariant="headlineSmall"
-                        right={(props) => (
-                            <IconButton
-                                {...props}
-                                icon="close"
-                                onPress={onDismiss}
-                            />
+                        right={() => (
+                            <IconButton icon="close" onPress={onDismiss} />
                         )}
                     />
 
                     <Divider />
 
-                    {/* Content */}
+                    {/* Content - Flexible height */}
                     <View style={styles.contentContainer}>
                         {renderResultContent()}
                     </View>
 
-                    {/* Footer Actions */}
+                    {/* Footer - Fixed height */}
                     {!loading && (
-                        <>
-                            <Divider />
-                            <Card.Actions style={styles.actions}>
-                                <Button onPress={onDismiss}>Close</Button>
-                                {results && (
-                                    <Button
-                                        mode="contained"
-                                        onPress={() => {
-                                            // Handle save/share functionality
-                                            console.log(
-                                                "Save results:",
-                                                results
-                                            );
-                                        }}
-                                    >
-                                        Save Results
-                                    </Button>
-                                )}
-                            </Card.Actions>
-                        </>
+                        <Card.Actions style={styles.actions}>
+                            <Button onPress={onDismiss}>Close</Button>
+                        </Card.Actions>
                     )}
                 </Card>
             </Modal>
@@ -147,25 +151,27 @@ const ResultsModal = ({
 
 const styles = StyleSheet.create({
     modalContainer: {
-        flex: 1,
         justifyContent: "center",
-        margin: 20,
+        alignItems: "center",
+        padding: 20,
     },
     modalCard: {
+        width: "100%",
+        maxWidth: 500,
         maxHeight: "90%",
-        elevation: 8,
+        borderRadius: 12,
+        backgroundColor: "white",
+        overflow: "hidden",
     },
     contentContainer: {
-        flex: 1,
-        minHeight: 200,
+        flexGrow: 1,
+        paddingHorizontal: 16,
+        paddingVertical: 12,
     },
     scrollContent: {
-        flex: 1,
-        paddingHorizontal: 16,
-        paddingVertical: 8,
+        paddingBottom: 8,
     },
     loadingContainer: {
-        flex: 1,
         justifyContent: "center",
         alignItems: "center",
         padding: 40,
@@ -175,7 +181,6 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
     emptyContainer: {
-        flex: 1,
         justifyContent: "center",
         alignItems: "center",
         padding: 40,
@@ -195,20 +200,6 @@ const styles = StyleSheet.create({
     analysisText: {
         lineHeight: 22,
     },
-    detailRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        marginBottom: 4,
-        flexWrap: "wrap",
-    },
-    detailKey: {
-        fontWeight: "500",
-        flex: 1,
-    },
-    detailValue: {
-        flex: 1,
-        textAlign: "right",
-    },
     timestamp: {
         textAlign: "center",
         opacity: 0.6,
@@ -216,8 +207,9 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     actions: {
-        justifyContent: "space-between",
-        paddingHorizontal: 16,
+        justifyContent: "flex-end",
+        paddingHorizontal: 12,
+        paddingBottom: 12,
     },
 });
 

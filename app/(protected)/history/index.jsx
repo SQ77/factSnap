@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
     View,
     Text,
@@ -57,69 +57,113 @@ export default function HistoryScreen() {
     const [pendingImageId, setPendingImageId] = useState(null);
     const [selectedTab, setSelectedTab] = useState("All");
 
+    // Use refs to track current values in the subscription callback
+    const pendingImageIdRef = useRef(null);
+    const subscriptionRef = useRef(null);
+
     const router = useRouter();
+
+    // Component mount log
+    useEffect(() => {
+        console.log("HistoryScreen component mounted");
+        return () => {
+            console.log("HistoryScreen component unmounting");
+        };
+    }, []);
 
     // Handle URL parameters on screen load
     useEffect(() => {
         if (showModal === "true" && filename) {
             console.log("Opening modal for image:", filename);
+            console.log("Setting pendingImageId to:", filename);
             setPendingImageId(filename);
+            pendingImageIdRef.current = filename;
             setModalVisible(true);
             setLoading(true);
 
-            // Optional: Clear URL parameters after reading them
-            // This prevents the modal from reopening if user navigates back
-            setTimeout(() => {
-                router.replace("/history");
-            }, 100);
+            // Don't clear URL parameters immediately - wait for processing to complete
+            // This prevents component remounting while we're waiting for results
         }
     }, [showModal, filename]);
 
-    // Supabase realtime subscription
+    // Single Supabase realtime subscription that persists
     useEffect(() => {
+        console.log("Setting up realtime subscription");
+
         const subscription = supabase
-            .channel("user_images_results")
+            .channel(`user_images_results_${Date.now()}`) 
             .on(
                 "postgres_changes",
                 {
-                    event: "*", // Listen to INSERT and UPDATE
+                    event: "UPDATE", 
                     schema: "public",
                     table: "user_images",
-                    filter: "status=eq.done", // Only when processing is complete
+                    filter: "status=eq.done", 
                 },
                 (payload) => {
                     console.log("Realtime update received:", payload);
 
+                    const currentPendingId = pendingImageIdRef.current;
+                    console.log("Current pending ID:", currentPendingId);
+                    console.log("Update payload:", {
+                        id: payload.new.id,
+                        filename: payload.new.filename,
+                        status: payload.new.status,
+                    });
+
+                    if (!currentPendingId) {
+                        console.log("No pending image, ignoring update");
+                        return;
+                    }
+
                     // Check if this update is for the image we're waiting for
-                    if (pendingImageId && payload.new.id === pendingImageId) {
+                    const isMatchingUpdate =
+                        payload.new.id === currentPendingId ||
+                        payload.new.filename === currentPendingId;
+
+                    console.log("Is matching update?", isMatchingUpdate);
+
+                    if (isMatchingUpdate) {
                         console.log(
                             "Processing completed for pending image:",
                             payload.new
                         );
                         setResults(payload.new);
                         setLoading(false);
-                    } else if (
-                        pendingImageId &&
-                        payload.new.filename === pendingImageId
-                    ) {
-                        // Fallback: also check by filename in case ID was passed as filename
-                        console.log(
-                            "Processing completed for pending image (by filename):",
-                            payload.new
-                        );
-                        setResults(payload.new);
-                        setLoading(false);
+                        // Clear the pending ID after processing
+                        setPendingImageId(null);
+                        pendingImageIdRef.current = null;
+                    } else {
+                        console.log("Update not for pending image:", {
+                            updateId: payload.new.id,
+                            updateFilename: payload.new.filename,
+                            pendingId: currentPendingId,
+                        });
                     }
                 }
             )
             .subscribe((status) => {
                 console.log("Realtime subscription status:", status);
+                if (status === "SUBSCRIBED") {
+                    console.log("Successfully subscribed to realtime updates");
+                }
             });
 
+        subscriptionRef.current = subscription;
+
+        // Cleanup function
         return () => {
-            console.log("Unsubscribing from realtime");
-            subscription.unsubscribe();
+            console.log("Cleaning up realtime subscription");
+            if (subscriptionRef.current) {
+                subscriptionRef.current.unsubscribe();
+                subscriptionRef.current = null;
+            }
         };
+    }, []); 
+
+    // Update the ref whenever pendingImageId changes
+    useEffect(() => {
+        pendingImageIdRef.current = pendingImageId;
     }, [pendingImageId]);
 
     // Handle modal dismiss
@@ -128,7 +172,24 @@ export default function HistoryScreen() {
         setResults(null);
         setLoading(false);
         setPendingImageId(null);
-    }, []);
+        pendingImageIdRef.current = null;
+
+        // Clear URL parameters after modal is dismissed
+        router.replace("/history");
+    }, [router]);
+
+    // Add a timeout to prevent infinite loading
+    useEffect(() => {
+        if (loading && pendingImageId) {
+            const timeout = setTimeout(() => {
+                console.log("Processing timeout reached");
+                setLoading(false);
+                // You might want to show an error message here
+            }, 30000); // 30 second timeout
+
+            return () => clearTimeout(timeout);
+        }
+    }, [loading, pendingImageId]);
 
     const filteredData =
         selectedTab === "All"
@@ -212,7 +273,7 @@ export default function HistoryScreen() {
                 onDismiss={handleModalDismiss}
                 results={results}
                 loading={loading}
-                title="Processing Results"
+                title="Analysis Results"
             />
         </SafeAreaView>
     );

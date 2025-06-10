@@ -141,7 +141,7 @@ export default function ScanScreen() {
             const result = await ImagePicker.launchImageLibraryAsync({
                 allowsEditing: true,
                 aspect: [4, 3],
-                quality: 1,
+                quality: 0.7,
             });
 
             if (!result.canceled && result.assets[0]) {
