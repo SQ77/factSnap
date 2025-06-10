@@ -91,14 +91,14 @@ export default function HistoryScreen() {
         console.log("Setting up realtime subscription");
 
         const subscription = supabase
-            .channel(`user_images_results_${Date.now()}`) 
+            .channel(`user_images_results_${Date.now()}`)
             .on(
                 "postgres_changes",
                 {
-                    event: "UPDATE", 
+                    event: "UPDATE",
                     schema: "public",
                     table: "user_images",
-                    filter: "status=eq.done", 
+                    filter: "status=eq.done",
                 },
                 (payload) => {
                     console.log("Realtime update received:", payload);
@@ -124,10 +124,7 @@ export default function HistoryScreen() {
                     console.log("Is matching update?", isMatchingUpdate);
 
                     if (isMatchingUpdate) {
-                        console.log(
-                            "Processing completed for pending image:",
-                            payload.new
-                        );
+                        console.log("Processing completed for pending image");
                         setResults(payload.new);
                         setLoading(false);
                         // Clear the pending ID after processing
@@ -159,7 +156,7 @@ export default function HistoryScreen() {
                 subscriptionRef.current = null;
             }
         };
-    }, []); 
+    }, []);
 
     // Update the ref whenever pendingImageId changes
     useEffect(() => {
