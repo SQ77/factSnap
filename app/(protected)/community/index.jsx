@@ -11,6 +11,8 @@ import {
   TouchableOpacity,
   Modal
 } from 'react-native';
+import { KeyboardAvoidingView, Platform } from 'react-native';
+
 
 import { Alert } from 'react-native';
 
@@ -22,12 +24,12 @@ import WaveBackgroundTop from '../../../components/WaveBackgroundTop.jsx';
 import WaveBackgroundBottom from '../../../components/WaveBackgroundBottom.jsx';
 
 import CommunityFavouriteButton from '../../../components/CommunityFavouriteButton.jsx';
-import CommunityLikedButton from '../../../components/CommunityLikedButton.jsx';
 
 import CommunityPostCard from '../../../components/CommunityPostCard.jsx';
 import CommunityFilters from '../../../components/CommunityFilters.jsx';
 
 import { FILTER_TABS, getFilteredPosts } from './mockData.jsx';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 
 export default function CommunityScreen() {
@@ -40,8 +42,15 @@ export default function CommunityScreen() {
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
-  const [posts, setPosts] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [category, setCategory] = useState(null);
+  const [items, setItems] = useState([
+    { label: 'General', value: 'General' },
+    { label: 'Urgent', value: 'Urgent' },
+    { label: 'Scams', value: 'Scams' },
+    { label: 'Tips', value: 'Tips' },
+    { label: 'News', value: 'News' },
+  ]);
 
 
   const handleAddPost = async () => {
@@ -50,13 +59,13 @@ export default function CommunityScreen() {
       Alert.alert('Please fill in all fields');
       return;
     }
-
+    console.log('yes')
     const {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser();
 
-  
+  console.log('yes, got user')
     if (userError || !user) {
       Alert.alert('Not logged in');
       return;
@@ -64,7 +73,7 @@ export default function CommunityScreen() {
   
     const userId = user.id;
 
-
+console.log('asd')
   
     const { data, error } = await supabase.from('community_posts').insert({
       title,
@@ -141,22 +150,53 @@ export default function CommunityScreen() {
         {/* ✏️ Add Post Modal */}
         <Modal key={showModal ? 'open' : 'closed'} visible={showModal} animationType="slide" transparent>
           <View style={styles.modalBackground}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Add New Post</Text>
+          <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Add New Post</Text>
 
-              <TextInput placeholder="Title" style={styles.input} value={title} onChangeText={setTitle} />
-              <TextInput placeholder="Description" style={styles.input} value={description} onChangeText={setDescription} multiline />
-              <TextInput placeholder="Category" style={styles.input} value={category} onChangeText={setCategory} />
+          <TextInput placeholder="Title" style={styles.input} value={title} onChangeText={setTitle} />
+          <TextInput
+            placeholder="Description"
+            style={styles.input}
+            value={description}
+            onChangeText={setDescription}
+            multiline
+          />
 
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-                <TouchableOpacity onPress={handleAddPost} style={[styles.button, { backgroundColor: '#007C91' }]}>
-                  <Text style={styles.buttonText}>Submit</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setShowModal(false)} style={[styles.button, { backgroundColor: '#ccc' }]}>
-                  <Text style={styles.buttonText}>Cancel</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+          {/* Fix DropDown z-index by moving it outside nested View */}
+          <DropDownPicker
+            open={open}
+            value={category}
+            items={items}
+            setOpen={setOpen}
+            setValue={setCategory}
+            setItems={setItems}
+            placeholder="Select a Category"
+            style={{ borderColor: '#ccc', marginBottom: 12, zIndex: 1000 }}
+            dropDownContainerStyle={{ borderColor: '#ccc', zIndex: 1000 }}
+            containerStyle={{ zIndex: 1000 }}
+          />
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+            <TouchableOpacity
+              onPress={handleAddPost}
+              style={[styles.button, { backgroundColor: '#007C91' }]}
+            >
+              <Text style={styles.buttonText}>Submit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setShowModal(false)}
+              style={[styles.button, { backgroundColor: '#ccc' }]}
+            >
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+
           </View>
         </Modal>
 
@@ -237,11 +277,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: 'rgba(0,0,0,0.5)',
     padding: 20,
+    zIndex: 9,
   },
   modalContent: {
     backgroundColor: 'white',
     borderRadius: 12,
     padding: 20,
+    zIndex: 10, // ✨ add this
+    elevation: 10, // ✨ for Android fallback
   },
   modalTitle: {
     fontSize: 20,
