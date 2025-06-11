@@ -12,14 +12,14 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 
-import WaveBackgroundTop from '../../components/WaveBackgroundTop.jsx';
-import WaveBackgroundBottom from '../../components/WaveBackgroundBottom.jsx';
+import WaveBackgroundTop from '../../../components/WaveBackgroundTop.jsx';
+import WaveBackgroundBottom from '../../../components/WaveBackgroundBottom.jsx';
 
-import CommunityFavouriteButton from '../../components/CommunityFavouriteButton.jsx';
-import CommunityLikedButton from '../../components/CommunityLikedButton.jsx';
+import CommunityFavouriteButton from '../../../components/CommunityFavouriteButton.jsx';
+import CommunityLikedButton from '../../../components/CommunityLikedButton.jsx';
 
-import CommunityPostCard from '../../components/CommunityPostCard.jsx';
-import CommunityFilters from '../../components/CommunityFilters.jsx';
+import CommunityPostCard from '../../../components/CommunityPostCard.jsx';
+import CommunityFilters from '../../../components/CommunityFilters.jsx';
 
 import { FILTER_TABS, getFilteredPosts } from './mockData.jsx';
 
