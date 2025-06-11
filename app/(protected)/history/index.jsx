@@ -150,7 +150,7 @@ export default function HistoryScreen() {
             explanation: userImage.explanation,
             image_text: userImage.image_text,
             filename: userImage.filename,
-            rawData: userImage, // Keep original data for modal
+            rawData: userImage,
         };
     };
 
@@ -163,9 +163,6 @@ export default function HistoryScreen() {
             pendingImageIdRef.current = filename;
             setModalVisible(true);
             setLoading(true);
-
-            // Don't clear URL parameters immediately - wait for processing to complete
-            // This prevents component remounting while we're waiting for results
         }
     }, [showModal, filename]);
 
@@ -234,8 +231,8 @@ export default function HistoryScreen() {
                     schema: "public",
                     table: "user_images",
                 },
-                (payload) => {
-                    console.log("New image inserted:", payload);
+                () => {
+                    console.log("New image inserted");
                     // Refresh the list when new images are added
                     fetchUserImages();
                 }
@@ -276,14 +273,13 @@ export default function HistoryScreen() {
         router.replace("/history");
     }, [router]);
 
-    // Add a timeout to prevent infinite loading
+    // Add a 30 second timeout to prevent infinite loading
     useEffect(() => {
         if (loading && pendingImageId) {
             const timeout = setTimeout(() => {
                 console.log("Processing timeout reached");
                 setLoading(false);
-                // You might want to show an error message here
-            }, 30000); // 30 second timeout
+            }, 30000);
 
             return () => clearTimeout(timeout);
         }
@@ -325,7 +321,6 @@ export default function HistoryScreen() {
             setResults(item.rawData);
             setModalVisible(true);
         }
-        // Mock data items (Screenshots/Uploads) are not interactive
     };
 
     const renderItem = ({ item }) => (
@@ -336,7 +331,6 @@ export default function HistoryScreen() {
         >
             <View style={styles.cardIconContainer}>
                 <Ionicons
-                    style={styles.cardIcon}
                     name={
                         item.type === "Scan"
                             ? "document-text-outline"
@@ -606,9 +600,6 @@ const styles = StyleSheet.create({
     cardIconContainer: {
         position: "relative",
         marginRight: 12,
-    },
-    cardIcon: {
-        // marginRight: 12,
     },
     statusIndicator: {
         position: "absolute",
