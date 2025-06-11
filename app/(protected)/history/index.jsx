@@ -15,33 +15,6 @@ import WaveBackgroundTop from "../../../components/WaveBackgroundTop";
 import WaveBackgroundBottom from "../../../components/WaveBackgroundBottom";
 import ResultsModal from "../../../components/ResultsModal";
 
-const mockData = [
-    {
-        id: "1",
-        title: "Breaking News: Market Crash",
-        type: "Upload",
-        date: "08 May 2025, 2:20 pm",
-    },
-    {
-        id: "2",
-        title: "Secret Investment Tips",
-        type: "Upload",
-        date: "01 May 2025, 11:45 am",
-    },
-    {
-        id: "3",
-        title: "Economic Crisis",
-        type: "Upload",
-        date: "19 Apr 2025, 3:13 pm",
-    },
-    {
-        id: "4",
-        title: "Free Money Claim",
-        type: "Upload",
-        date: "10 Apr 2025, 9:30 am",
-    },
-];
-
 const TABS = ["All", "Scans", "Uploads"];
 
 export default function HistoryScreen() {
@@ -142,8 +115,10 @@ export default function HistoryScreen() {
     const transformUserImageData = (userImage) => {
         return {
             id: userImage.id,
-            title: "User Image Scan",
-            type: "Scan",
+            title: userImage.filename.includes("camera")
+                ? "Camera Scan"
+                : "Image Upload",
+            type: userImage.filename.includes("camera") ? "Scan" : "Upload",
             date: formatDate(userImage.created_at),
             status: userImage.status,
             credibility: userImage.credibility,
@@ -285,18 +260,13 @@ export default function HistoryScreen() {
         }
     }, [loading, pendingImageId]);
 
-    // Combine mock data with transformed user images
+    // Transform user images data
     const transformedData = userImages.map(transformUserImageData);
-    const combinedData = [...transformedData, ...mockData];
 
     // Sort by date (newest first)
-    const sortedData = combinedData.sort((a, b) => {
-        const dateA = a.rawData
-            ? new Date(a.rawData.created_at)
-            : new Date(a.date);
-        const dateB = b.rawData
-            ? new Date(b.rawData.created_at)
-            : new Date(b.date);
+    const sortedData = transformedData.sort((a, b) => {
+        const dateA = new Date(a.rawData.created_at);
+        const dateB = new Date(b.rawData.created_at);
         return dateB - dateA;
     });
 
@@ -312,9 +282,8 @@ export default function HistoryScreen() {
 
     // Handle item press to show results
     const handleItemPress = (item) => {
-        // Only handle scans with results
+        // Handle both scans and uploads with results
         if (
-            item.type === "Scan" &&
             item.status === "done" &&
             (item.credibility !== null || item.explanation)
         ) {
@@ -327,26 +296,24 @@ export default function HistoryScreen() {
         <TouchableOpacity
             style={styles.card}
             onPress={() => handleItemPress(item)}
-            disabled={item.type !== "Scan" || item.status !== "done"}
+            disabled={item.status !== "done"}
         >
             <View style={styles.cardIconContainer}>
                 <Ionicons
                     name={
                         item.type === "Scan"
-                            ? "document-text-outline"
-                            : item.type === "Upload"
-                            ? "cloud-upload-outline"
+                            ? "camera-outline"
                             : "image-outline"
                     }
                     size={26}
                     color="#fff"
                 />
-                {item.type === "Scan" && item.status === "pending" && (
+                {item.status === "pending" && (
                     <View style={styles.statusIndicator}>
                         <ActivityIndicator size="small" color="#FFA500" />
                     </View>
                 )}
-                {item.type === "Scan" && item.status === "done" && (
+                {item.status === "done" && (
                     <View
                         style={[styles.statusIndicator, styles.doneIndicator]}
                     >
@@ -362,7 +329,7 @@ export default function HistoryScreen() {
                 <Text style={styles.cardTitle}>{item.title}</Text>
                 <View style={styles.cardRow}>
                     <Text style={styles.cardType}>
-                        {item.type === "Scan" && item.status
+                        {item.status
                             ? `${item.type} • ${
                                   item.status === "pending"
                                       ? "Processing..."
@@ -372,30 +339,28 @@ export default function HistoryScreen() {
                     </Text>
                     <Text style={styles.cardDate}>{item.date}</Text>
                 </View>
-                {item.type === "Scan" &&
-                    item.status === "done" &&
-                    item.credibility !== null && (
-                        <View style={styles.credibilityContainer}>
-                            <Text style={styles.credibilityLabel}>
-                                Credibility:{" "}
-                            </Text>
-                            <Text
-                                style={[
-                                    styles.credibilityValue,
-                                    {
-                                        color:
-                                            item.credibility >= 70
-                                                ? "#4CAF50"
-                                                : item.credibility >= 40
-                                                ? "#FFA500"
-                                                : "#F44336",
-                                    },
-                                ]}
-                            >
-                                {Math.round(item.credibility)}%
-                            </Text>
-                        </View>
-                    )}
+                {item.status === "done" && item.credibility !== null && (
+                    <View style={styles.credibilityContainer}>
+                        <Text style={styles.credibilityLabel}>
+                            Credibility:{" "}
+                        </Text>
+                        <Text
+                            style={[
+                                styles.credibilityValue,
+                                {
+                                    color:
+                                        item.credibility >= 70
+                                            ? "#4CAF50"
+                                            : item.credibility >= 40
+                                            ? "#FFA500"
+                                            : "#F44336",
+                                },
+                            ]}
+                        >
+                            {Math.round(item.credibility)}%
+                        </Text>
+                    </View>
+                )}
             </View>
         </TouchableOpacity>
     );
@@ -404,11 +369,11 @@ export default function HistoryScreen() {
         <View style={styles.emptyState}>
             <Ionicons
                 name={
-                    selectedTab === "All" || selectedTab === "Scans"
+                    selectedTab === "All"
                         ? "document-text-outline"
-                        : selectedTab === "Screenshots"
-                        ? "image-outline"
-                        : "cloud-upload-outline"
+                        : selectedTab === "Scans"
+                        ? "camera-outline"
+                        : "image-outline"
                 }
                 size={64}
                 color="#ccc"
@@ -461,7 +426,7 @@ export default function HistoryScreen() {
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#2695A6" />
                     <Text style={styles.loadingText}>
-                        Loading your scans...
+                        Loading your items...
                     </Text>
                 </View>
                 <WaveBackgroundBottom />
