@@ -398,7 +398,6 @@ export default function HistoryScreen() {
                 <View style={styles.topContainer}>
                     <View style={styles.header}>
                         <Text style={styles.headerText}>Your History</Text>
-                        <Ionicons name="menu" size={24} color="#fff" />
                     </View>
                     <View style={styles.tabsContainer}>
                         {TABS.map((tab) => (
@@ -440,7 +439,6 @@ export default function HistoryScreen() {
             <View style={styles.topContainer}>
                 <View style={styles.header}>
                     <Text style={styles.headerText}>Your History</Text>
-                    <Ionicons name="menu" size={24} color="#fff" />
                 </View>
 
                 <View style={styles.tabsContainer}>
