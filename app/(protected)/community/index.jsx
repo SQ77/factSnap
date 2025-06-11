@@ -7,8 +7,16 @@ import {
   FlatList,
   StyleSheet,
   SafeAreaView,
+  TextInput,
+  TouchableOpacity,
+  Modal
 } from 'react-native';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 
+
+import { Alert } from 'react-native';
+
+import { supabase } from "../../../lib/supabase";
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 
@@ -16,12 +24,12 @@ import WaveBackgroundTop from '../../../components/WaveBackgroundTop.jsx';
 import WaveBackgroundBottom from '../../../components/WaveBackgroundBottom.jsx';
 
 import CommunityFavouriteButton from '../../../components/CommunityFavouriteButton.jsx';
-import CommunityLikedButton from '../../../components/CommunityLikedButton.jsx';
 
 import CommunityPostCard from '../../../components/CommunityPostCard.jsx';
 import CommunityFilters from '../../../components/CommunityFilters.jsx';
 
 import { FILTER_TABS, getFilteredPosts } from './mockData.jsx';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 
 export default function CommunityScreen() {
@@ -30,6 +38,68 @@ export default function CommunityScreen() {
   const filteredPosts = getFilteredPosts(selectedTab);
 
   const renderPost = ({ item }) => <CommunityPostCard item={item} />;
+
+  const [showModal, setShowModal] = useState(false);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [open, setOpen] = useState(false);
+  const [category, setCategory] = useState(null);
+  const [items, setItems] = useState([
+    { label: 'General', value: 'General' },
+    { label: 'Urgent', value: 'Urgent' },
+    { label: 'Scams', value: 'Scams' },
+    { label: 'Tips', value: 'Tips' },
+    { label: 'News', value: 'News' },
+  ]);
+
+
+  const handleAddPost = async () => {
+    console.log('trigegred')
+    if (!title || !description || !category) {
+      Alert.alert('Please fill in all fields');
+      return;
+    }
+    console.log('yes')
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+  console.log('yes, got user')
+    if (userError || !user) {
+      Alert.alert('Not logged in');
+      return;
+    }
+  
+    const userId = user.id;
+
+console.log('asd')
+  
+    const { data, error } = await supabase.from('community_posts').insert({
+      title,
+      description,
+      category,
+      user_id: userId,
+    });
+    
+    console.log('finish');
+    
+    if (error) {
+      console.log('❌ Supabase insert error:', error);
+      Alert.alert('Error', error.message);
+    } else {
+      console.log('✅ Insert success:', data);
+      Alert.alert('Post added!');
+      setShowModal(false);
+      setTitle('');
+      setDescription('');
+      setCategory('');
+      // Optional: fetchPosts();
+    }
+    
+   
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -49,10 +119,7 @@ export default function CommunityScreen() {
                   onPress={CommunityFavouriteButton.handlePress}
                   style={styles.buttonSpacing}
                 />
-                <CommunityLikedButton 
-                  onPress={CommunityLikedButton.handlePress}
-                  style={styles.buttonSpacing}
-                />
+                
               </View>
             </View>
             
@@ -75,6 +142,63 @@ export default function CommunityScreen() {
           renderItem={renderPost}
           showsVerticalScrollIndicator={false}
         />
+        {/* ➕ Floating Add Button */}
+        <TouchableOpacity style={styles.fab} onPress={() => setShowModal(true)}>
+          <Ionicons name="add" size={32} color="white" />
+        </TouchableOpacity>
+
+        {/* ✏️ Add Post Modal */}
+        <Modal key={showModal ? 'open' : 'closed'} visible={showModal} animationType="slide" transparent>
+          <View style={styles.modalBackground}>
+          <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Add New Post</Text>
+
+          <TextInput placeholder="Title" style={styles.input} value={title} onChangeText={setTitle} />
+          <TextInput
+            placeholder="Description"
+            style={styles.input}
+            value={description}
+            onChangeText={setDescription}
+            multiline
+          />
+
+          {/* Fix DropDown z-index by moving it outside nested View */}
+          <DropDownPicker
+            open={open}
+            value={category}
+            items={items}
+            setOpen={setOpen}
+            setValue={setCategory}
+            setItems={setItems}
+            placeholder="Select a Category"
+            style={{ borderColor: '#ccc', marginBottom: 12, zIndex: 1000 }}
+            dropDownContainerStyle={{ borderColor: '#ccc', zIndex: 1000 }}
+            containerStyle={{ zIndex: 1000 }}
+          />
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+            <TouchableOpacity
+              onPress={handleAddPost}
+              style={[styles.button, { backgroundColor: '#007C91' }]}
+            >
+              <Text style={styles.buttonText}>Submit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setShowModal(false)}
+              style={[styles.button, { backgroundColor: '#ccc' }]}
+            >
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+
+          </View>
+        </Modal>
 
         <WaveBackgroundBottom />
       </SafeAreaView>
@@ -139,4 +263,51 @@ const styles = StyleSheet.create({
     color: 'grey',
     fontSize: 14,
   },
+  fab: {
+    position: 'absolute',
+    bottom: 30,
+    right: 30,
+    backgroundColor: '#007C91',
+    borderRadius: 50,
+    padding: 16,
+    elevation: 5,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 20,
+    zIndex: 9,
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    zIndex: 10, // ✨ add this
+    elevation: 10, // ✨ for Android fallback
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 12,
+  },
+  button: {
+    padding: 12,
+    borderRadius: 10,
+    flex: 1,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  
 });
