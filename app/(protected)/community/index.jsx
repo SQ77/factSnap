@@ -19,7 +19,6 @@ import CommunityFavouriteButton from '../../../components/CommunityFavouriteButt
 import CommunityPostCard from '../../../components/CommunityPostCard';
 import CommunityFilters from '../../../components/CommunityFilters';
 
-import { FILTER_TABS, getFilteredPosts } from './mockData';
 
 
 export default function CommunityScreen() {
