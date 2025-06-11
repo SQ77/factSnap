@@ -15,29 +15,59 @@ const top3 = [
         id: 1,
         name: "Lawrence W",
         points: 43,
-        image: require("../../../assets/icon.png"),
+        image: { uri: "https://i.pravatar.cc/150?img=10" },
     },
     {
         id: 2,
         name: "Aaron Tan",
         points: 40,
-        image: require("../../../assets/icon.png"),
+        image: { uri: "https://i.pravatar.cc/150?img=2" },
     },
     {
         id: 3,
         name: "A. Boyd",
         points: 38,
-        image: require("../../../assets/icon.png"),
+        image: { uri: "https://i.pravatar.cc/150?img=3" },
     },
 ];
 
 const others = [
-    { id: 4, name: "Li Jialin", points: 36, image: require("../../../assets/icon.png") },
-    { id: 5, name: "Ben Leong", points: 35, image: require("../../../assets/icon.png") },
-    { id: 6, name: "Steven Halim", points: 34, image: require("../../../assets/icon.png") },
-    { id: 7, name: "Angela Yao", points: 33, image: require("../../../assets/icon.png") },
-    { id: 8, name: "Terence Sim", points: 32, image: require("../../../assets/icon.png") },
-    { id: 9, name: "Yang Yue", points: 31, image: require("../../../assets/icon.png") },
+    {
+        id: 4,
+        name: "Li Jialin",
+        points: 36,
+        image: { uri: "https://i.pravatar.cc/150?img=4" },
+    },
+    {
+        id: 5,
+        name: "Ben Leong",
+        points: 35,
+        image: { uri: "https://i.pravatar.cc/150?img=5" },
+    },
+    {
+        id: 6,
+        name: "Steven Halim",
+        points: 34,
+        image: { uri: "https://i.pravatar.cc/150?img=6" },
+    },
+    {
+        id: 7,
+        name: "Angela Yao",
+        points: 33,
+        image: { uri: "https://i.pravatar.cc/150?img=7" },
+    },
+    {
+        id: 8,
+        name: "Terence Sim",
+        points: 32,
+        image: { uri: "https://i.pravatar.cc/150?img=8" },
+    },
+    {
+        id: 9,
+        name: "Yang Yue",
+        points: 31,
+        image: { uri: "https://i.pravatar.cc/150?img=9" },
+    },
 ];
 
 export default function LeaderboardScreen() {
@@ -55,7 +85,11 @@ export default function LeaderboardScreen() {
         <SafeAreaView style={styles.container}>
             {/* Header */}
             <View style={styles.header}>
-                <TouchableOpacity onPress={()=>{router.back()}}>
+                <TouchableOpacity
+                    onPress={() => {
+                        router.back();
+                    }}
+                >
                     <Ionicons name="chevron-back" size={24} color="#333" />
                 </TouchableOpacity>
                 <View style={styles.positionBadge}>
@@ -71,25 +105,42 @@ export default function LeaderboardScreen() {
             {/* Top 3 */}
             <View style={styles.top3Container}>
                 {/* 2nd */}
-                <View style={styles.topItem}>
-                    <Image source={top3[1].image} style={styles.avatar} />
+                <View style={styles.topItemSmall}>
+                    <Text style={[styles.medal, { backgroundColor: "silver" }]}>
+                        2
+                    </Text>
+                    <Image
+                        source={top3[1].image}
+                        style={styles.avatarSmallTop}
+                    />
                     <Text style={styles.topName}>{top3[1].name}</Text>
                     <Text style={styles.topPoints}>{top3[1].points} pts</Text>
                 </View>
 
                 {/* 1st */}
-                <View style={styles.topItem}>
-                    <View style={styles.crownContainer}>
-                        <Text style={styles.crown}>1</Text>
-                    </View>
-                    <Image source={top3[0].image} style={[styles.avatar, { borderWidth: 3, borderColor: "gold" }]} />
+                <View style={styles.topItemLarge}>
+                    <Text style={[styles.medal, { backgroundColor: "gold" }]}>
+                        1
+                    </Text>
+                    <Image
+                        source={top3[0].image}
+                        style={styles.avatarLargeTop}
+                    />
                     <Text style={styles.topName}>{top3[0].name}</Text>
                     <Text style={styles.topPoints}>{top3[0].points} pts</Text>
                 </View>
 
                 {/* 3rd */}
-                <View style={styles.topItem}>
-                    <Image source={top3[2].image} style={styles.avatar} />
+                <View style={styles.topItemSmall}>
+                    <Text
+                        style={[styles.medal, { backgroundColor: "#cd7f32" }]}
+                    >
+                        3
+                    </Text>
+                    <Image
+                        source={top3[2].image}
+                        style={styles.avatarSmallTop}
+                    />
                     <Text style={styles.topName}>{top3[2].name}</Text>
                     <Text style={styles.topPoints}>{top3[2].points} pts</Text>
                 </View>
@@ -139,12 +190,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "700",
         color: "#fff",
-    },
-    top3Container: {
-        flexDirection: "row",
-        justifyContent: "space-around",
-        alignItems: "flex-end",
-        marginVertical: 20,
     },
     topItem: {
         alignItems: "center",
@@ -213,5 +258,45 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: "600",
         color: "#333",
+    },
+    top3Container: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        alignItems: "flex-end",
+        marginVertical: 20,
+    },
+    topItemSmall: {
+        alignItems: "center",
+        flex: 1,
+    },
+    topItemLarge: {
+        alignItems: "center",
+        flex: 1.2,
+    },
+    avatarSmallTop: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        borderWidth: 2,
+        borderColor: "#ccc",
+        marginBottom: 6,
+    },
+    avatarLargeTop: {
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        borderWidth: 3,
+        borderColor: "gold",
+        marginBottom: 6,
+    },
+    medal: {
+        color: "#000",
+        fontWeight: "700",
+        paddingVertical: 2,
+        paddingHorizontal: 8,
+        borderRadius: 999,
+        overflow: "hidden",
+        marginBottom: -10,
+        zIndex: 2,
     },
 });
