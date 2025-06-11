@@ -1,6 +1,6 @@
 // Main Community Page
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -28,14 +28,14 @@ import CommunityFavouriteButton from '../../../components/CommunityFavouriteButt
 import CommunityPostCard from '../../../components/CommunityPostCard.jsx';
 import CommunityFilters from '../../../components/CommunityFilters.jsx';
 
-import { FILTER_TABS, getFilteredPosts } from './mockData.jsx';
+export const FILTER_TABS = ['All Posts', 'Urgent', 'Scams', 'Tips', 'News'];
 import DropDownPicker from 'react-native-dropdown-picker';
 
 
 export default function CommunityScreen() {
   const [selectedTab, setSelectedTab] = useState('All Posts');
 
-  const filteredPosts = getFilteredPosts(selectedTab);
+  
 
   const renderPost = ({ item }) => <CommunityPostCard item={item} />;
 
@@ -51,7 +51,36 @@ export default function CommunityScreen() {
     { label: 'Tips', value: 'Tips' },
     { label: 'News', value: 'News' },
   ]);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const filteredPosts = selectedTab === 'All Posts'
+  ? posts
+  : posts.filter(p => p.category === selectedTab);
 
+  const fetchPosts = async () => {
+    console.log('fetching post')
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('community_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+  
+      if (error) {
+        console.error('❌ Fetch error:', error);
+        Alert.alert('Failed to load posts');
+      } else {
+        setPosts(data);
+      }
+    } catch (err) {
+      console.error('❌ Unexpected error:', err);
+      Alert.alert('Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+    
+  };
+  
 
   const handleAddPost = async () => {
     console.log('trigegred')
@@ -59,13 +88,11 @@ export default function CommunityScreen() {
       Alert.alert('Please fill in all fields');
       return;
     }
-    console.log('yes')
     const {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser();
 
-  console.log('yes, got user')
     if (userError || !user) {
       Alert.alert('Not logged in');
       return;
@@ -73,7 +100,6 @@ export default function CommunityScreen() {
   
     const userId = user.id;
 
-console.log('asd')
   
     const { data, error } = await supabase.from('community_posts').insert({
       title,
@@ -82,7 +108,6 @@ console.log('asd')
       user_id: userId,
     });
     
-    console.log('finish');
     
     if (error) {
       console.log('❌ Supabase insert error:', error);
@@ -94,12 +119,15 @@ console.log('asd')
       setTitle('');
       setDescription('');
       setCategory('');
-      // Optional: fetchPosts();
+      setSelectedTab('All Posts'); // 👈 ADD this
+      await fetchPosts();
     }
     
    
   };
-  
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   return (
     <View style={styles.container}>
