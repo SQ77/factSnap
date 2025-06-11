@@ -113,11 +113,10 @@ export default function HistoryScreen() {
 
     // Transform user_images data to match the expected format
     const transformUserImageData = (userImage) => {
+        const defaultTitle = userImage.filename.includes("camera") ? "User Scan" : "User Upload";
         return {
             id: userImage.id,
-            title: userImage.filename.includes("camera")
-                ? "Camera Scan"
-                : "Image Upload",
+            title: userImage.title || defaultTitle,
             type: userImage.filename.includes("camera") ? "Scan" : "Upload",
             date: formatDate(userImage.created_at),
             status: userImage.status,
