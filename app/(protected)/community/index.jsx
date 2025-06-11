@@ -21,7 +21,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 
 import WaveBackgroundTop from '../../../components/WaveBackgroundTop.jsx';
-import WaveBackgroundBottom from '../../../components/WaveBackgroundBottom.jsx';
+import WaveBackgroundBottom from '../../../components/WaveBackgroundBottom';
+
 
 import CommunityFavouriteButton from '../../../components/CommunityFavouriteButton.jsx';
 
@@ -147,7 +148,7 @@ export default function CommunityScreen() {
                   onPress={CommunityFavouriteButton.handlePress}
                   style={styles.buttonSpacing}
                 />
-                
+
               </View>
             </View>
             
@@ -253,14 +254,14 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     paddingHorizontal: 20,
-    paddingTop: 5, // from top of screen to community
+    paddingTop: 15, // from top of screen to community
     zIndex: 1, // make sure its above the bg
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20, // space between buttons & search bar
+    marginBottom: 25, // space between buttons & search bar
   },
   headerText: {
     fontSize: 22,
@@ -291,6 +292,7 @@ const styles = StyleSheet.create({
     color: 'grey',
     fontSize: 14,
   },
+
   fab: {
     position: 'absolute',
     bottom: 30,
