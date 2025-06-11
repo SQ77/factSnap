@@ -13,15 +13,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 
 import WaveBackgroundTop from '../../../components/WaveBackgroundTop.jsx';
-import WaveBackgroundBottom from '../../../components/WaveBackgroundBottom.jsx';
+import WaveBackgroundBottom from '../../../components/WaveBackgroundBottom';
 
-import CommunityFavouriteButton from '../../../components/CommunityFavouriteButton.jsx';
-import CommunityLikedButton from '../../../components/CommunityLikedButton.jsx';
+import CommunityFavouriteButton from '../../../components/CommunityFavouriteButton';
+import CommunityPostCard from '../../../components/CommunityPostCard';
+import CommunityFilters from '../../../components/CommunityFilters';
 
-import CommunityPostCard from '../../../components/CommunityPostCard.jsx';
-import CommunityFilters from '../../../components/CommunityFilters.jsx';
-
-import { FILTER_TABS, getFilteredPosts } from './mockData.jsx';
+import { FILTER_TABS, getFilteredPosts } from './mockData';
 
 
 export default function CommunityScreen() {
@@ -47,10 +45,6 @@ export default function CommunityScreen() {
 
                 <CommunityFavouriteButton 
                   onPress={CommunityFavouriteButton.handlePress}
-                  style={styles.buttonSpacing}
-                />
-                <CommunityLikedButton 
-                  onPress={CommunityLikedButton.handlePress}
                   style={styles.buttonSpacing}
                 />
               </View>
@@ -101,14 +95,14 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     paddingHorizontal: 20,
-    paddingTop: 5, // from top of screen to community
+    paddingTop: 15, // from top of screen to community
     zIndex: 1, // make sure its above the bg
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20, // space between buttons & search bar
+    marginBottom: 25, // space between buttons & search bar
   },
   headerText: {
     fontSize: 22,

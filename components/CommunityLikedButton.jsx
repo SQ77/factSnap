@@ -19,7 +19,7 @@ export default function CommunityLikedButton({ onPress, style }) {
       activeOpacity={0.7}
     >
       <Ionicons 
-        name={isFilled ? "heart" : "heart-outline"} 
+        name={isFilled ? "add" : "add-outline"} 
         size={24} 
         color="#BB3E3E" 
         // nvm doesnt work 

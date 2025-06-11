@@ -1,6 +1,6 @@
 // Detailed post page
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,19 +9,79 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Modal,
+  TextInput,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import { router, useLocalSearchParams } from 'expo-router';
 import { getPostById, mockComments } from './mockData.jsx';
-
 import CommunityFavouriteButton from '../../../components/CommunityFavouriteButton.jsx';
-import CommunityLikedButton from '../../../components/CommunityLikedButton.jsx';
 
 export default function CommunityPostScreen() {
  const { postId } = useLocalSearchParams();
  const post = getPostById(postId) || getPostById('1'); 
 
+// reply to comment function
+
+// reply state
+ const [isReplyModalVisible, setIsReplyModalVisible] = useState(false);
+ const [replyText, setReplyText] = useState('');
+ const [userReplies, setUserReplies] = useState([]);
+ 
+ // Add ref for TextInput to auto-focus
+ const replyTextInputRef = useRef(null);
+
+ // Auto-focus the TextInput when modal opens
+ useEffect(() => {
+   if (isReplyModalVisible && replyTextInputRef.current) {
+     // Small delay to ensure modal is fully rendered
+     setTimeout(() => {
+       replyTextInputRef.current.focus();
+     }, 100);
+   }
+ }, [isReplyModalVisible]);
+
+ // handle reply submission
+ const handleReplySubmit = () => {
+   if (replyText.trim().length < 3) {
+     Alert.alert('Error', 'Please enter a reply of at least 3 characters before submitting.');
+     return;
+}
+
+      const newReply = {
+        id: `user_${Date.now()}`,
+        username: '@you',
+        level: 'Level 3',
+        Bio: 'Community member',
+        avatar: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+        content: replyText.trim(),
+        date: 'Just now',
+        isUnderModeration: true,
+      };
+   
+      setUserReplies([newReply, ...userReplies]);
+      setReplyText('');
+      setIsReplyModalVisible(false);
+      
+      Alert.alert(
+        'Reply Submitted!', 
+        'Your reply has been submitted and is under moderation. It will be visible to others once approved.',
+        [{ text: 'OK' }]
+      );
+    };
+
+ // handle modal close
+ const handleModalClose = () => {
+   setIsReplyModalVisible(false);
+   setReplyText('');
+ };
+   
+  
+ // load replies   
  const renderComment = (comment) => (
    <View key={comment.id} style={styles.commentCard}>
      <View style={styles.commentHeader}>
@@ -40,6 +100,9 @@ export default function CommunityPostScreen() {
    </View>
  );
 
+ // load all comments (user first + mock comments)
+ const allComments = [...userReplies, ...mockComments];
+ 
  return ( 
    <SafeAreaView style={styles.root}>
      <StatusBar style="light" />
@@ -52,7 +115,6 @@ export default function CommunityPostScreen() {
          <Text style={styles.headerText}>Post</Text>
          <View style={styles.headerButtons}>
            <CommunityFavouriteButton />
-           <CommunityLikedButton style={styles.ButtonSpacing} />
          </View>
        </View>
      </View>
@@ -94,10 +156,79 @@ export default function CommunityPostScreen() {
        </View>
      </ScrollView>
      
-     <TouchableOpacity style={styles.replyButton}>
+     <TouchableOpacity 
+       style={styles.replyButton} 
+       onPress={() => setIsReplyModalVisible(true)}
+     >
        <Ionicons name="chatbubble" size={24} color="white" />
        <Text style={styles.replyButtonText}>Reply</Text>
      </TouchableOpacity>
+
+     <Modal
+       visible={isReplyModalVisible}
+       animationType="slide"
+       transparent={true}
+       onRequestClose={handleModalClose}
+     >
+       <KeyboardAvoidingView 
+         style={styles.modalContainer}
+         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+       >
+         <View style={styles.modalOverlay}>
+           <View style={styles.modalContent}>
+             <View style={styles.modalHeader}>
+               <Text style={styles.modalTitle}>Write a Reply</Text>
+               <TouchableOpacity onPress={handleModalClose}>
+                 <Ionicons name="close" size={24} color="#666" />
+               </TouchableOpacity>
+             </View>
+             
+             <TextInput
+               ref={replyTextInputRef}
+               style={styles.replyInput}
+               placeholder="Share your thoughts..."
+               placeholderTextColor="#999"
+               value={replyText}
+               onChangeText={setReplyText}
+               multiline={true}
+               numberOfLines={4}
+               textAlignVertical="top"
+               maxLength={500}
+             />
+             
+             <View style={styles.modalFooter}>
+               <Text style={styles.characterCount}>
+                 {replyText.length}/500
+               </Text>
+               <View style={styles.modalButtons}>
+                 <TouchableOpacity 
+                   style={styles.cancelButton} 
+                   onPress={handleModalClose}
+                 >
+                   <Text style={styles.cancelButtonText}>Cancel</Text>
+                 </TouchableOpacity>
+                 <TouchableOpacity 
+                   style={[
+                     styles.submitButton,
+                     replyText.trim().length === 0 && styles.submitButtonDisabled
+                   ]} 
+                   onPress={handleReplySubmit}
+                   disabled={replyText.trim().length === 0}
+                 >
+                   <Text style={[
+                     styles.submitButtonText,
+                     replyText.trim().length === 0 && styles.submitButtonTextDisabled
+                   ]}>
+                     Submit
+                   </Text>
+                 </TouchableOpacity>
+               </View>
+             </View>
+           </View>
+         </View>
+       </KeyboardAvoidingView>
+     </Modal>
+     
    </SafeAreaView>
  );
 }
@@ -323,5 +454,85 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginLeft: 8,
+  },
+
+  // Modal Styles
+  modalContainer: {
+    flex: 1,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 40,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+  },
+  replyInput: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    minHeight: 120,
+    maxHeight: 200,
+    backgroundColor: '#F9F9F9',
+  },
+  modalFooter: {
+    marginTop: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  characterCount: {
+    fontSize: 12,
+    color: '#999',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+  },
+  cancelButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginRight: 12,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '500',
+  },
+  submitButton: {
+    backgroundColor: '#2695A6',
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  submitButtonDisabled: {
+    backgroundColor: '#E0E0E0',
+  },
+  submitButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  submitButtonTextDisabled: {
+    color: '#999',
   },
 });

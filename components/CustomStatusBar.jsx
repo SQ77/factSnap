@@ -14,7 +14,7 @@ const CustomStatusBar = ({ backgroundColor, barStyle }) => {
                         backgroundColor,
                         width: "100%",
                         position: "absolute",
-                        top: -50,
+                        top: -65,
                         left: 0,
                         right: 0,
                         zIndex: 10,
