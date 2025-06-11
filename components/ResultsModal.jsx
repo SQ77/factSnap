@@ -9,6 +9,7 @@ import {
     IconButton,
     ActivityIndicator,
 } from "react-native-paper";
+import Svg, { Circle } from "react-native-svg";
 
 const ResultsModal = ({
     visible,
@@ -52,12 +53,47 @@ const ResultsModal = ({
                             >
                                 Credibility Score
                             </Text>
-                            <Text
-                                variant="bodyMedium"
-                                style={styles.analysisText}
-                            >
-                                {results.credibility}/100
-                            </Text>
+                            <View style={styles.donutContainer}>
+                                <Svg width={120} height={120}>
+                                    {/* Background circle */}
+                                    <Circle
+                                        cx={60}
+                                        cy={60}
+                                        r={45}
+                                        fill="none"
+                                        stroke="#E5E7EB"
+                                        strokeWidth={8}
+                                    />
+                                    {/* Progress circle */}
+                                    <Circle
+                                        cx={60}
+                                        cy={60}
+                                        r={45}
+                                        fill="none"
+                                        stroke={
+                                            results.credibility >= 70
+                                                ? "#10B981"
+                                                : results.credibility >= 40
+                                                ? "#F59E0B"
+                                                : "#EF4444"
+                                        }
+                                        strokeWidth={8}
+                                        strokeDasharray={`${
+                                            (results.credibility / 100) * 283
+                                        } 283`}
+                                        strokeDashoffset={0}
+                                        strokeLinecap="round"
+                                        transform="rotate(-90 60 60)"
+                                    />
+                                </Svg>
+                                {/* Score text in the center */}
+                                <View style={styles.scoreContainer}>
+                                    <Text style={styles.scoreText}>
+                                        {Math.round(results.credibility)}
+                                    </Text>
+                                    <Text style={styles.scoreLabel}>/ 100</Text>
+                                </View>
+                            </View>
                         </Card.Content>
                     </Card>
                 )}
@@ -210,6 +246,27 @@ const styles = StyleSheet.create({
         justifyContent: "flex-end",
         paddingHorizontal: 12,
         paddingBottom: 12,
+    },
+    donutContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
+        marginVertical: 16,
+    },
+    scoreContainer: {
+        position: "absolute",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    scoreText: {
+        fontSize: 28,
+        fontWeight: "bold",
+        color: "#1F2937",
+    },
+    scoreLabel: {
+        fontSize: 14,
+        color: "#6B7280",
+        marginTop: -4,
     },
 });
 
