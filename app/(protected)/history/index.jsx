@@ -184,7 +184,7 @@ export default function HistoryScreen() {
                     filter: "status=eq.done",
                 },
                 (payload) => {
-                    console.log("Realtime update received:", payload);
+                    console.log("Realtime update received");
 
                     const currentPendingId = pendingImageIdRef.current;
                     console.log("Current pending ID:", currentPendingId);
