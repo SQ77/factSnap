@@ -28,7 +28,9 @@ export default function CommunityPostCard({ item }) {
       <Text style={styles.postTitle}>{item.title}</Text>
       
       <View style={styles.tagsContainer}>
-        {item.tags.map((tag, index) => (
+
+        <View style={styles.tagsContainer}>
+        {(item?.tags || []).map((tag, index) => (
           <View 
             key={index} 
             style={[
@@ -44,6 +46,7 @@ export default function CommunityPostCard({ item }) {
             </Text>
           </View>
         ))}
+      </View>
       </View>
 
       <Text style={styles.postContent} numberOfLines={2}>

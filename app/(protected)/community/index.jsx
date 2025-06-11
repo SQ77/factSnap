@@ -1,6 +1,6 @@
 // Main Community Page
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,21 +21,22 @@ import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 
 import WaveBackgroundTop from '../../../components/WaveBackgroundTop.jsx';
-import WaveBackgroundBottom from '../../../components/WaveBackgroundBottom.jsx';
+import WaveBackgroundBottom from '../../../components/WaveBackgroundBottom';
+
 
 import CommunityFavouriteButton from '../../../components/CommunityFavouriteButton.jsx';
 
 import CommunityPostCard from '../../../components/CommunityPostCard.jsx';
 import CommunityFilters from '../../../components/CommunityFilters.jsx';
 
-import { FILTER_TABS, getFilteredPosts } from './mockData.jsx';
+export const FILTER_TABS = ['All Posts', 'Urgent', 'Scams', 'Tips', 'News'];
 import DropDownPicker from 'react-native-dropdown-picker';
 
 
 export default function CommunityScreen() {
   const [selectedTab, setSelectedTab] = useState('All Posts');
 
-  const filteredPosts = getFilteredPosts(selectedTab);
+  
 
   const renderPost = ({ item }) => <CommunityPostCard item={item} />;
 
@@ -51,7 +52,36 @@ export default function CommunityScreen() {
     { label: 'Tips', value: 'Tips' },
     { label: 'News', value: 'News' },
   ]);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const filteredPosts = selectedTab === 'All Posts'
+  ? posts
+  : posts.filter(p => p.category === selectedTab);
 
+  const fetchPosts = async () => {
+    console.log('fetching post')
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('community_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+  
+      if (error) {
+        console.error('❌ Fetch error:', error);
+        Alert.alert('Failed to load posts');
+      } else {
+        setPosts(data);
+      }
+    } catch (err) {
+      console.error('❌ Unexpected error:', err);
+      Alert.alert('Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+    
+  };
+  
 
   const handleAddPost = async () => {
     console.log('trigegred')
@@ -59,13 +89,11 @@ export default function CommunityScreen() {
       Alert.alert('Please fill in all fields');
       return;
     }
-    console.log('yes')
     const {
       data: { user },
       error: userError,
     } = await supabase.auth.getUser();
 
-  console.log('yes, got user')
     if (userError || !user) {
       Alert.alert('Not logged in');
       return;
@@ -73,7 +101,6 @@ export default function CommunityScreen() {
   
     const userId = user.id;
 
-console.log('asd')
   
     const { data, error } = await supabase.from('community_posts').insert({
       title,
@@ -82,7 +109,6 @@ console.log('asd')
       user_id: userId,
     });
     
-    console.log('finish');
     
     if (error) {
       console.log('❌ Supabase insert error:', error);
@@ -94,12 +120,15 @@ console.log('asd')
       setTitle('');
       setDescription('');
       setCategory('');
-      // Optional: fetchPosts();
+      setSelectedTab('All Posts'); // 👈 ADD this
+      await fetchPosts();
     }
     
    
   };
-  
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -119,7 +148,7 @@ console.log('asd')
                   onPress={CommunityFavouriteButton.handlePress}
                   style={styles.buttonSpacing}
                 />
-                
+
               </View>
             </View>
             
@@ -225,14 +254,14 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     paddingHorizontal: 20,
-    paddingTop: 5, // from top of screen to community
+    paddingTop: 15, // from top of screen to community
     zIndex: 1, // make sure its above the bg
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20, // space between buttons & search bar
+    marginBottom: 25, // space between buttons & search bar
   },
   headerText: {
     fontSize: 22,
@@ -263,6 +292,7 @@ const styles = StyleSheet.create({
     color: 'grey',
     fontSize: 14,
   },
+
   fab: {
     position: 'absolute',
     bottom: 30,
