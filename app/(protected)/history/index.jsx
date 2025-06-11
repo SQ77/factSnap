@@ -103,7 +103,7 @@ export default function HistoryScreen() {
                 return;
             }
 
-            console.log("Fetched user images:", data);
+            console.log("Fetched user images");
             setUserImages(data || []);
         } catch (error) {
             console.error("Unexpected error fetching user images:", error);
