@@ -15,33 +15,6 @@ import WaveBackgroundTop from "../../../components/WaveBackgroundTop";
 import WaveBackgroundBottom from "../../../components/WaveBackgroundBottom";
 import ResultsModal from "../../../components/ResultsModal";
 
-const mockData = [
-    {
-        id: "1",
-        title: "Breaking News: Market Crash",
-        type: "Upload",
-        date: "08 May 2025, 2:20 pm",
-    },
-    {
-        id: "2",
-        title: "Secret Investment Tips",
-        type: "Upload",
-        date: "01 May 2025, 11:45 am",
-    },
-    {
-        id: "3",
-        title: "Economic Crisis",
-        type: "Upload",
-        date: "19 Apr 2025, 3:13 pm",
-    },
-    {
-        id: "4",
-        title: "Free Money Claim",
-        type: "Upload",
-        date: "10 Apr 2025, 9:30 am",
-    },
-];
-
 const TABS = ["All", "Scans", "Uploads"];
 
 export default function HistoryScreen() {
@@ -142,15 +115,17 @@ export default function HistoryScreen() {
     const transformUserImageData = (userImage) => {
         return {
             id: userImage.id,
-            title: "User Image Scan",
-            type: "Scan",
+            title: userImage.filename.includes("camera")
+                ? "Camera Scan"
+                : "Image Upload",
+            type: userImage.filename.includes("camera") ? "Scan" : "Upload",
             date: formatDate(userImage.created_at),
             status: userImage.status,
             credibility: userImage.credibility,
             explanation: userImage.explanation,
             image_text: userImage.image_text,
             filename: userImage.filename,
-            rawData: userImage, // Keep original data for modal
+            rawData: userImage,
         };
     };
 
@@ -163,9 +138,6 @@ export default function HistoryScreen() {
             pendingImageIdRef.current = filename;
             setModalVisible(true);
             setLoading(true);
-
-            // Don't clear URL parameters immediately - wait for processing to complete
-            // This prevents component remounting while we're waiting for results
         }
     }, [showModal, filename]);
 
@@ -184,7 +156,7 @@ export default function HistoryScreen() {
                     filter: "status=eq.done",
                 },
                 (payload) => {
-                    console.log("Realtime update received:", payload);
+                    console.log("Realtime update received");
 
                     const currentPendingId = pendingImageIdRef.current;
                     console.log("Current pending ID:", currentPendingId);
@@ -234,8 +206,8 @@ export default function HistoryScreen() {
                     schema: "public",
                     table: "user_images",
                 },
-                (payload) => {
-                    console.log("New image inserted:", payload);
+                () => {
+                    console.log("New image inserted");
                     // Refresh the list when new images are added
                     fetchUserImages();
                 }
@@ -276,31 +248,25 @@ export default function HistoryScreen() {
         router.replace("/history");
     }, [router]);
 
-    // Add a timeout to prevent infinite loading
+    // Add a 30 second timeout to prevent infinite loading
     useEffect(() => {
         if (loading && pendingImageId) {
             const timeout = setTimeout(() => {
                 console.log("Processing timeout reached");
                 setLoading(false);
-                // You might want to show an error message here
-            }, 30000); // 30 second timeout
+            }, 30000);
 
             return () => clearTimeout(timeout);
         }
     }, [loading, pendingImageId]);
 
-    // Combine mock data with transformed user images
+    // Transform user images data
     const transformedData = userImages.map(transformUserImageData);
-    const combinedData = [...transformedData, ...mockData];
 
     // Sort by date (newest first)
-    const sortedData = combinedData.sort((a, b) => {
-        const dateA = a.rawData
-            ? new Date(a.rawData.created_at)
-            : new Date(a.date);
-        const dateB = b.rawData
-            ? new Date(b.rawData.created_at)
-            : new Date(b.date);
+    const sortedData = transformedData.sort((a, b) => {
+        const dateA = new Date(a.rawData.created_at);
+        const dateB = new Date(b.rawData.created_at);
         return dateB - dateA;
     });
 
@@ -316,43 +282,38 @@ export default function HistoryScreen() {
 
     // Handle item press to show results
     const handleItemPress = (item) => {
-        // Only handle scans with results
+        // Handle both scans and uploads with results
         if (
-            item.type === "Scan" &&
             item.status === "done" &&
             (item.credibility !== null || item.explanation)
         ) {
             setResults(item.rawData);
             setModalVisible(true);
         }
-        // Mock data items (Screenshots/Uploads) are not interactive
     };
 
     const renderItem = ({ item }) => (
         <TouchableOpacity
             style={styles.card}
             onPress={() => handleItemPress(item)}
-            disabled={item.type !== "Scan" || item.status !== "done"}
+            disabled={item.status !== "done"}
         >
             <View style={styles.cardIconContainer}>
                 <Ionicons
-                    style={styles.cardIcon}
                     name={
                         item.type === "Scan"
-                            ? "document-text-outline"
-                            : item.type === "Upload"
-                            ? "cloud-upload-outline"
+                            ? "camera-outline"
                             : "image-outline"
                     }
                     size={26}
                     color="#fff"
                 />
-                {item.type === "Scan" && item.status === "pending" && (
+                {item.status === "pending" && (
                     <View style={styles.statusIndicator}>
                         <ActivityIndicator size="small" color="#FFA500" />
                     </View>
                 )}
-                {item.type === "Scan" && item.status === "done" && (
+                {item.status === "done" && (
                     <View
                         style={[styles.statusIndicator, styles.doneIndicator]}
                     >
@@ -368,7 +329,7 @@ export default function HistoryScreen() {
                 <Text style={styles.cardTitle}>{item.title}</Text>
                 <View style={styles.cardRow}>
                     <Text style={styles.cardType}>
-                        {item.type === "Scan" && item.status
+                        {item.status
                             ? `${item.type} • ${
                                   item.status === "pending"
                                       ? "Processing..."
@@ -378,30 +339,28 @@ export default function HistoryScreen() {
                     </Text>
                     <Text style={styles.cardDate}>{item.date}</Text>
                 </View>
-                {item.type === "Scan" &&
-                    item.status === "done" &&
-                    item.credibility !== null && (
-                        <View style={styles.credibilityContainer}>
-                            <Text style={styles.credibilityLabel}>
-                                Credibility:{" "}
-                            </Text>
-                            <Text
-                                style={[
-                                    styles.credibilityValue,
-                                    {
-                                        color:
-                                            item.credibility >= 70
-                                                ? "#4CAF50"
-                                                : item.credibility >= 40
-                                                ? "#FFA500"
-                                                : "#F44336",
-                                    },
-                                ]}
-                            >
-                                {Math.round(item.credibility)}%
-                            </Text>
-                        </View>
-                    )}
+                {item.status === "done" && item.credibility !== null && (
+                    <View style={styles.credibilityContainer}>
+                        <Text style={styles.credibilityLabel}>
+                            Credibility:{" "}
+                        </Text>
+                        <Text
+                            style={[
+                                styles.credibilityValue,
+                                {
+                                    color:
+                                        item.credibility >= 70
+                                            ? "#4CAF50"
+                                            : item.credibility >= 40
+                                            ? "#FFA500"
+                                            : "#F44336",
+                                },
+                            ]}
+                        >
+                            {Math.round(item.credibility)}%
+                        </Text>
+                    </View>
+                )}
             </View>
         </TouchableOpacity>
     );
@@ -410,11 +369,11 @@ export default function HistoryScreen() {
         <View style={styles.emptyState}>
             <Ionicons
                 name={
-                    selectedTab === "All" || selectedTab === "Scans"
+                    selectedTab === "All"
                         ? "document-text-outline"
-                        : selectedTab === "Screenshots"
-                        ? "image-outline"
-                        : "cloud-upload-outline"
+                        : selectedTab === "Scans"
+                        ? "camera-outline"
+                        : "image-outline"
                 }
                 size={64}
                 color="#ccc"
@@ -439,7 +398,6 @@ export default function HistoryScreen() {
                 <View style={styles.topContainer}>
                     <View style={styles.header}>
                         <Text style={styles.headerText}>Your History</Text>
-                        <Ionicons name="menu" size={24} color="#fff" />
                     </View>
                     <View style={styles.tabsContainer}>
                         {TABS.map((tab) => (
@@ -467,7 +425,7 @@ export default function HistoryScreen() {
                 <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color="#2695A6" />
                     <Text style={styles.loadingText}>
-                        Loading your scans...
+                        Loading your items...
                     </Text>
                 </View>
                 <WaveBackgroundBottom />
@@ -481,7 +439,6 @@ export default function HistoryScreen() {
             <View style={styles.topContainer}>
                 <View style={styles.header}>
                     <Text style={styles.headerText}>Your History</Text>
-                    <Ionicons name="menu" size={24} color="#fff" />
                 </View>
 
                 <View style={styles.tabsContainer}>
@@ -606,9 +563,6 @@ const styles = StyleSheet.create({
     cardIconContainer: {
         position: "relative",
         marginRight: 12,
-    },
-    cardIcon: {
-        // marginRight: 12,
     },
     statusIndicator: {
         position: "absolute",

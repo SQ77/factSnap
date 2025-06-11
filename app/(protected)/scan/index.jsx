@@ -67,7 +67,7 @@ export default function ScanScreen() {
     function toggleFlash() {
         setFlashMode((current) => (current === "off" ? "on" : "off"));
     }
-
+    /*
     async function processImage(imageUri, fileName) {
         try {
             setShowLoading(true);
@@ -96,6 +96,48 @@ export default function ScanScreen() {
                     filename: data.filename,
                 },
             });
+        } catch (error) {
+            console.error("Error processing image:", error);
+            Alert.alert("Error", "Failed to process image: " + error.message);
+        } finally {
+            setShowLoading(false);
+            setLoadingText("Processing...");
+        }
+    }
+    */
+
+    async function processImage(imageUri, fileName) {
+        try {
+            setShowLoading(true);
+            setLoadingText("Uploading image...");
+
+            // Upload image to Supabase storage
+            await ImageService.uploadImage(imageUri, fileName);
+
+            // Navigate to history page immediately
+            router.push({
+                pathname: "/history",
+                params: {
+                    showModal: "false",
+                    filename: fileName,
+                },
+            });
+
+            // Continue OCR and DB save in the background
+            (async () => {
+                try {
+                    const extractedText = await OCRService.extractText(
+                        imageUri
+                    );
+                    await DatabaseService.saveImageData(
+                        fileName,
+                        extractedText
+                    );
+                    console.log("OCR and save done for", fileName);
+                } catch (innerError) {
+                    console.error("Background OCR/save failed:", innerError);
+                }
+            })();
         } catch (error) {
             console.error("Error processing image:", error);
             Alert.alert("Error", "Failed to process image: " + error.message);
