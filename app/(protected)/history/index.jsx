@@ -17,20 +17,32 @@ import ResultsModal from "../../../components/ResultsModal";
 
 const mockData = [
     {
+        id: "1",
+        title: "Breaking News: Market Crash",
+        type: "Upload",
+        date: "08 May 2025, 2:20 pm",
+    },
+    {
+        id: "2",
+        title: "Secret Investment Tips",
+        type: "Upload",
+        date: "01 May 2025, 11:45 am",
+    },
+    {
         id: "3",
         title: "Economic Crisis",
-        type: "Screenshot",
+        type: "Upload",
         date: "19 Apr 2025, 3:13 pm",
     },
     {
-        id: "5",
+        id: "4",
         title: "Free Money Claim",
         type: "Upload",
         date: "10 Apr 2025, 9:30 am",
     },
 ];
 
-const TABS = ["All", "Scans", "Screenshots", "Uploads"];
+const TABS = ["All", "Scans", "Uploads"];
 
 export default function HistoryScreen() {
     const { showModal, filename } = useLocalSearchParams();
