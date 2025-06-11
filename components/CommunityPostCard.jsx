@@ -29,29 +29,28 @@ export default function CommunityPostCard({ item }) {
       
       <View style={styles.tagsContainer}>
 
-        <View style={styles.tagsContainer}>
-        {(item?.tags || []).map((tag, index) => (
-          <View 
-            key={index} 
-            style={[
-              styles.tag,
-              tag.includes('Urgent') && styles.urgentTag
-            ]}
-          >
-            <Text style={[
-              styles.tagText,
-              tag.includes('Urgent') && styles.urgentTagText
-            ]}>
-              {tag}
-            </Text>
-          </View>
-        ))}
+      <View style={styles.tagsContainer}>
+        <View 
+          style={[
+            styles.tag,
+            item.category === 'Urgent' && styles.urgentTag
+          ]}
+        >
+          <Text style={[
+            styles.tagText,
+            item.category === 'Urgent' && styles.urgentTagText
+          ]}>
+            {item.category}
+          </Text>
+        </View>
       </View>
+
       </View>
 
       <Text style={styles.postContent} numberOfLines={2}>
-        {item.content}
+        {item.description}
       </Text>
+
 
       <View style={styles.postFooter}>
         <Text style={styles.repliesText}>{item.replies} Replies</Text>  

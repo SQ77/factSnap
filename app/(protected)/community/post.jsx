@@ -20,6 +20,8 @@ import { StatusBar } from 'expo-status-bar';
 import { router, useLocalSearchParams } from 'expo-router';
 import { getPostById, mockComments } from './mockData.jsx';
 import CommunityFavouriteButton from '../../../components/CommunityFavouriteButton.jsx';
+import { supabase } from "../../../lib/supabase";
+
 
 export default function CommunityPostScreen() {
  const { postId } = useLocalSearchParams();
