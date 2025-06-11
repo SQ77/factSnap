@@ -13,16 +13,16 @@ export default function CommunityPostCard({ item }) {
       })}
     >
       <View style={styles.postHeader}>
-        <Image source={{ uri: item.avatar }} style={styles.avatar} />
+        <Image source={{ uri: "https://ychef.files.bbci.co.uk/1280x720/p0cgcj2q.jpg" }} style={styles.avatar} />
         <View style={styles.userInfo}>
           <View style={styles.userRow}>
-            <Text style={styles.username}>{item.username}</Text>
+            <Text style={styles.username}>Brenda_ne</Text>
             <Ionicons name="checkmark-circle" size={16} color="#2695A6" />
             <Text style={styles.level}>{item.level}</Text>
           </View>
-          <Text style={styles.Bio}>{item.Bio}</Text>
+          <Text style={styles.Bio}>Cooking up ambition</Text>
         </View>
-        <Text style={styles.postDate}>{item.date}</Text>
+        <Text style={styles.postDate}>2 hours ago</Text>
       </View>
 
       <Text style={styles.postTitle}>{item.title}</Text>

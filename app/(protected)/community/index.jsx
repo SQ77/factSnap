@@ -84,7 +84,6 @@ export default function CommunityScreen() {
   
 
   const handleAddPost = async () => {
-    console.log('trigegred')
     if (!title || !description || !category) {
       Alert.alert('Please fill in all fields');
       return;
@@ -120,7 +119,7 @@ export default function CommunityScreen() {
       setTitle('');
       setDescription('');
       setCategory('');
-      setSelectedTab('All Posts'); // 👈 ADD this
+      setSelectedTab('All Posts'); 
       await fetchPosts();
     }
     
