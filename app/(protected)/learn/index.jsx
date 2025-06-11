@@ -53,13 +53,13 @@ export default function Learn() {
 
                     <View style={styles.footerRow}>
                         <Text style={styles.positionText}>Current Position: 192</Text>
-                        <TouchableOpacity onPress={() => router.push("/learn/leaderboard")}>
+                        <TouchableOpacity onPress={() => router.push('/learn/leaderboard')}>
                             <Text style={styles.linkText}>View Leaderboard ➤</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
 
-                <WaveBackgroundBottom style = {{bottom:125}}/>
+                <WaveBackgroundBottom style = {{bottom:80}}pointerEvents="none"/>
         </SafeAreaView>
     );
 }
