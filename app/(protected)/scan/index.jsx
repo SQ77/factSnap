@@ -67,44 +67,6 @@ export default function ScanScreen() {
     function toggleFlash() {
         setFlashMode((current) => (current === "off" ? "on" : "off"));
     }
-    /*
-    async function processImage(imageUri, fileName) {
-        try {
-            setShowLoading(true);
-            setLoadingText("Uploading image...");
-
-            // Upload image to Supabase storage
-            await ImageService.uploadImage(imageUri, fileName);
-
-            setLoadingText("Extracting text...");
-
-            // Perform OCR
-            const extractedText = await OCRService.extractText(imageUri);
-
-            setLoadingText("Saving to database...");
-
-            // Save to database
-            const data = await DatabaseService.saveImageData(
-                fileName,
-                extractedText
-            );
-
-            router.push({
-                pathname: "/history",
-                params: {
-                    showModal: "true",
-                    filename: data.filename,
-                },
-            });
-        } catch (error) {
-            console.error("Error processing image:", error);
-            Alert.alert("Error", "Failed to process image: " + error.message);
-        } finally {
-            setShowLoading(false);
-            setLoadingText("Processing...");
-        }
-    }
-    */
 
     async function processImage(imageUri, fileName) {
         try {
@@ -227,20 +189,6 @@ export default function ScanScreen() {
                     </View>
                 </View>
 
-                {/* Document frame with corner brackets */}
-                <View style={styles.frameContainer}>
-                    <View style={styles.frame}>
-                        {/* Top left corner */}
-                        <View style={[styles.corner, styles.topLeft]} />
-                        {/* Top right corner */}
-                        <View style={[styles.corner, styles.topRight]} />
-                        {/* Bottom left corner */}
-                        <View style={[styles.corner, styles.bottomLeft]} />
-                        {/* Bottom right corner */}
-                        <View style={[styles.corner, styles.bottomRight]} />
-                    </View>
-                </View>
-
                 {/* Bottom controls */}
                 <View style={styles.bottomControls}>
                     <TouchableOpacity
@@ -333,48 +281,6 @@ const styles = StyleSheet.create({
     },
     headerRight: {
         flexDirection: "row",
-    },
-    frameContainer: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        paddingHorizontal: 40,
-    },
-    frame: {
-        width: width * 0.8,
-        height: height * 0.4,
-        position: "relative",
-    },
-    corner: {
-        position: "absolute",
-        width: 40,
-        height: 40,
-        borderColor: "white",
-        borderWidth: 4,
-    },
-    topLeft: {
-        top: 0,
-        left: 0,
-        borderRightWidth: 0,
-        borderBottomWidth: 0,
-    },
-    topRight: {
-        top: 0,
-        right: 0,
-        borderLeftWidth: 0,
-        borderBottomWidth: 0,
-    },
-    bottomLeft: {
-        bottom: 0,
-        left: 0,
-        borderRightWidth: 0,
-        borderTopWidth: 0,
-    },
-    bottomRight: {
-        bottom: 0,
-        right: 0,
-        borderLeftWidth: 0,
-        borderTopWidth: 0,
     },
     bottomControls: {
         flexDirection: "row",
