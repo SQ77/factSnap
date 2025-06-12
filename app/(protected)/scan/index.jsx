@@ -189,6 +189,8 @@ export default function ScanScreen() {
                     </View>
                 </View>
 
+                <View style={styles.frameContainer}></View>
+
                 {/* Bottom controls */}
                 <View style={styles.bottomControls}>
                     <TouchableOpacity
@@ -281,6 +283,12 @@ const styles = StyleSheet.create({
     },
     headerRight: {
         flexDirection: "row",
+    },
+    frameContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        paddingHorizontal: 40,
     },
     bottomControls: {
         flexDirection: "row",
