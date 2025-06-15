@@ -1,6 +1,4 @@
-// Main Community Page
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,32 +9,20 @@ import {
   TouchableOpacity,
   Modal
 } from 'react-native';
-import { KeyboardAvoidingView, Platform } from 'react-native';
-
-
-import { Alert } from 'react-native';
-
+import { Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { supabase } from "../../../lib/supabase";
 import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
-
 import WaveBackgroundTop from '../../../components/WaveBackgroundTop.jsx';
 import WaveBackgroundBottom from '../../../components/WaveBackgroundBottom';
-
-
-import CommunityFavouriteButton from '../../../components/CommunityFavouriteButton.jsx';
-
 import CommunityPostCard from '../../../components/CommunityPostCard.jsx';
 import CommunityFilters from '../../../components/CommunityFilters.jsx';
-
-export const FILTER_TABS = ['All Posts', 'Urgent', 'Scams', 'Tips', 'News'];
 import DropDownPicker from 'react-native-dropdown-picker';
 
+export const FILTER_TABS = ['All Posts', 'Urgent', 'Scams', 'Tips', 'News'];
 
 export default function CommunityScreen() {
   const [selectedTab, setSelectedTab] = useState('All Posts');
-
-  
 
   const renderPost = ({ item }) => <CommunityPostCard item={item} />;
 
@@ -55,8 +41,8 @@ export default function CommunityScreen() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const filteredPosts = selectedTab === 'All Posts'
-  ? posts
-  : posts.filter(p => p.category === selectedTab);
+    ? posts
+    : posts.filter(p => p.category === selectedTab);
 
   const fetchPosts = async () => {
     console.log('fetching post')
@@ -68,18 +54,17 @@ export default function CommunityScreen() {
         .order('created_at', { ascending: false });
   
       if (error) {
-        console.error('❌ Fetch error:', error);
+        console.error('Fetch error:', error);
         Alert.alert('Failed to load posts');
       } else {
         setPosts(data);
       }
     } catch (err) {
-      console.error('❌ Unexpected error:', err);
+      console.error('Unexpected error:', err);
       Alert.alert('Something went wrong');
     } finally {
       setLoading(false);
     }
-    
   };
   
 
@@ -99,7 +84,6 @@ export default function CommunityScreen() {
     }
   
     const userId = user.id;
-
   
     const { data, error } = await supabase.from('community_posts').insert({
       title,
@@ -110,10 +94,10 @@ export default function CommunityScreen() {
     
     
     if (error) {
-      console.log('❌ Supabase insert error:', error);
+      console.log('Supabase insert error:', error);
       Alert.alert('Error', error.message);
     } else {
-      console.log('✅ Insert success:', data);
+      console.log('Insert success:', data);
       Alert.alert('Post added!');
       setShowModal(false);
       setTitle('');
@@ -141,14 +125,6 @@ export default function CommunityScreen() {
           <View style={styles.headerContent}>
             <View style={styles.header}>
               <Text style={styles.headerText}>Community</Text>
-              <View style={styles.headerIcons}>
-
-                <CommunityFavouriteButton 
-                  onPress={CommunityFavouriteButton.handlePress}
-                  style={styles.buttonSpacing}
-                />
-
-              </View>
             </View>
             
             <View style={styles.searchBar}>
@@ -170,12 +146,12 @@ export default function CommunityScreen() {
           renderItem={renderPost}
           showsVerticalScrollIndicator={false}
         />
-        {/* ➕ Floating Add Button */}
+        {/* Floating Add Button */}
         <TouchableOpacity style={styles.fab} onPress={() => setShowModal(true)}>
           <Ionicons name="add" size={32} color="white" />
         </TouchableOpacity>
 
-        {/* ✏️ Add Post Modal */}
+        {/* Add Post Modal */}
         <Modal key={showModal ? 'open' : 'closed'} visible={showModal} animationType="slide" transparent>
           <View style={styles.modalBackground}>
           <KeyboardAvoidingView
@@ -194,7 +170,6 @@ export default function CommunityScreen() {
             multiline
           />
 
-          {/* Fix DropDown z-index by moving it outside nested View */}
           <DropDownPicker
             open={open}
             value={category}
@@ -253,26 +228,19 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     paddingHorizontal: 20,
-    paddingTop: 15, // from top of screen to community
-    zIndex: 1, // make sure its above the bg
+    paddingTop: 15, 
+    zIndex: 1, 
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 25, // space between buttons & search bar
+    marginBottom: 25, 
   },
   headerText: {
     fontSize: 22,
     color: 'white',
     fontWeight: 'bold',
-  },
-  headerIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  buttonSpacing: {
-    marginLeft: 15, // space between buttons
   },
   searchBar: {
     flexDirection: 'row',
@@ -291,7 +259,6 @@ const styles = StyleSheet.create({
     color: 'grey',
     fontSize: 14,
   },
-
   fab: {
     position: 'absolute',
     bottom: 30,
@@ -312,8 +279,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 12,
     padding: 20,
-    zIndex: 10, // ✨ add this
-    elevation: 10, // ✨ for Android fallback
+    zIndex: 10, 
+    elevation: 10, 
   },
   modalTitle: {
     fontSize: 20,

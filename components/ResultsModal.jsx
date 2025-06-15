@@ -98,26 +98,6 @@ const ResultsModal = ({
                     </Card>
                 )}
 
-                {/* Extracted Text */}
-                {results.image_text && (
-                    <Card style={styles.resultCard}>
-                        <Card.Content>
-                            <Text
-                                variant="titleMedium"
-                                style={styles.sectionTitle}
-                            >
-                                Extracted Text
-                            </Text>
-                            <Text
-                                variant="bodyMedium"
-                                style={styles.analysisText}
-                            >
-                                {results.image_text}
-                            </Text>
-                        </Card.Content>
-                    </Card>
-                )}
-
                 {/* Explanation */}
                 {results.explanation && (
                     <Card style={styles.resultCard}>
@@ -133,6 +113,26 @@ const ResultsModal = ({
                                 style={styles.analysisText}
                             >
                                 {results.explanation}
+                            </Text>
+                        </Card.Content>
+                    </Card>
+                )}
+
+                {/* Extracted Text */}
+                {results.image_text && (
+                    <Card style={styles.resultCard}>
+                        <Card.Content>
+                            <Text
+                                variant="titleMedium"
+                                style={styles.sectionTitle}
+                            >
+                                Extracted Text
+                            </Text>
+                            <Text
+                                variant="bodyMedium"
+                                style={styles.analysisText}
+                            >
+                                {results.image_text}
                             </Text>
                         </Card.Content>
                     </Card>
