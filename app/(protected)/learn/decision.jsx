@@ -1,8 +1,6 @@
-import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import WaveBackgroundBottom from '../../../components/WaveBackgroundBottom';
 import WaveBackgroundTop from '../../../components/WaveBackgroundTop';
-
 
 export default function DecisionSimulators() {
   return (

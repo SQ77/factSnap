@@ -1,8 +1,6 @@
-import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import WaveBackgroundTop from '../../../components/WaveBackgroundTop';
 import WaveBackgroundBottom from '../../../components/WaveBackgroundBottom';
-
 
 export default function ScamsPage() {
   return (
@@ -13,7 +11,7 @@ export default function ScamsPage() {
         <Text style={styles.title}>🇸🇬 Scams in Singapore</Text>
         <Text style={styles.subtitle}>Coming Soon!</Text>
         <Text style={styles.description}>
-          We’re working hard to bring you real-life scam case studies, red flags, and how to stay safe 💡
+          We are working hard to bring you real-life scam case studies, red flags, and how to stay safe 💡
         </Text>
       </View>
 

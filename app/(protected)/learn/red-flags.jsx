@@ -2,7 +2,6 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView,
     ScrollView,
     TouchableOpacity,
     Image,
@@ -94,7 +93,6 @@ export default function RedFlagsScreen() {
 
 
 const styles = StyleSheet.create({
-   
     container: {
         borderBottomLeftRadius: 40,
         borderBottomRightRadius: 40,

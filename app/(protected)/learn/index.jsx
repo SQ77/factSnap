@@ -5,7 +5,6 @@ import {
     View,
     TouchableOpacity,
     SafeAreaView,
-    ScrollView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import WaveBackgroundTop from "../../../components/WaveBackgroundTop";

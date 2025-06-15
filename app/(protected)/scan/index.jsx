@@ -5,7 +5,6 @@ import {
     TouchableOpacity,
     View,
     Alert,
-    Dimensions,
 } from "react-native";
 import { Button, Text, ActivityIndicator } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
@@ -15,8 +14,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { ImageService } from "../../../services/imageService";
 import { OCRService } from "../../../services/ocrService";
 import { DatabaseService } from "../../../services/databaseService";
-
-const { width, height } = Dimensions.get("window");
 
 export default function ScanScreen() {
     const [permission, requestPermission] = useCameraPermissions();
